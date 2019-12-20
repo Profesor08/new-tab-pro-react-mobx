@@ -1,94 +1,63 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import style from "./style.module.scss";
 
-interface VoiceSearchProps {}
+let speechRecognition: SpeechRecognition | null = null;
 
-interface VoiceSearchState {
-  recording: boolean;
-}
+const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
+  const [recording, setRecording] = useState(false);
 
-class VoiceSearch extends Component<VoiceSearchProps, VoiceSearchState> {
-  speechRecognitionIsSupported: boolean;
-  speechRecognition: SpeechRecognition | null;
+  try {
+    if (speechRecognition === null) {
+      speechRecognition = new webkitSpeechRecognition();
 
-  constructor(props: VoiceSearchProps) {
-    super(props);
+      speechRecognition.addEventListener("result", event => {
+        setRecording(false);
 
-    this.state = {
-      recording: false,
-    };
-
-    this.speechRecognitionIsSupported = true;
-    this.speechRecognition = null;
-
-    this.initSpeechRecognition();
-  }
-
-  initSpeechRecognition = () => {
-    try {
-      this.speechRecognition = new webkitSpeechRecognition();
-
-      this.speechRecognition.addEventListener("result", event => {
         window.open(
           "http://google.ru/search?q=" + event.results[0][0].transcript,
           "",
         );
       });
 
-      this.speechRecognition.addEventListener("start", () => {
-        this.setState({
-          recording: true,
-        });
-      });
-
-      this.speechRecognition.addEventListener("end", () => {
-        this.setState({
-          recording: false,
-        });
-      });
-
-      this.speechRecognition.addEventListener(
+      speechRecognition.addEventListener(
         "error",
         (event: SpeechRecognitionError) => {
           if (event.error !== "no-speech") {
             console.warn("%cERROR: " + event.error, "color: #FF0000;");
             console.warn(event);
           }
+
+          setRecording(false);
         },
       );
-    } catch (err) {
-      console.warn("SpeechRecognition is not supported by browser.");
-
-      this.speechRecognitionIsSupported = false;
     }
-  };
 
-  toggleVoiceListening = () => {
-    if (this.speechRecognitionIsSupported && this.speechRecognition) {
-      try {
-        if (this.state.recording === false) {
-          this.speechRecognition.start();
-        } else {
-          this.speechRecognition.stop();
-        }
-      } catch (err) {
-        console.warn(err.message);
-      }
+    if (recording) {
+      speechRecognition.start();
+    } else {
+      speechRecognition.stop();
     }
-  };
-
-  render() {
-    let recording = this.state.recording ? style.recording : "";
-
-    return (
-      <button
-        className={style.microphone + " " + recording}
-        onClick={this.toggleVoiceListening}
-      >
-        <div className={style.image} />
-      </button>
-    );
+  } catch (err) {
+    console.warn(err);
   }
-}
+
+  return [recording, setRecording];
+};
+
+export const VoiceSearch = () => {
+  const [recording, setRecording] = useSpeechRecognition();
+
+  let className = style.microphone;
+
+  if (recording) {
+    className += " " + style["is-recording"];
+  }
+
+  return (
+    <button className={className} onClick={() => setRecording(!recording)}>
+      <div className={style.image} />
+    </button>
+  );
+};
 
 export default VoiceSearch;
