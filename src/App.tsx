@@ -3,12 +3,11 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import "./scss/App.scss";
 import VoiceSearch from "./components/VoiceSearch/VoiceSearch";
-import MenuBar from "./components/options/MenuBar";
+import Menu from "./components/options/MenuBar";
 import Sites from "./components/sites/Sites";
 import Background from "./components/background/Background";
 import AddSiteForm from "./components/sites/AddSiteForm";
 import Weather from "./components/Weather/Weather";
-import OptionsPanel from "./components/options/options-panel/OptionsPanel";
 import Currency from "./components/currency/Currency";
 import Bookmarks from "./components/bookmarks";
 import {
@@ -47,14 +46,10 @@ class App extends Component<Props> {
           </div>
           <div className="sidebar-right" />
         </div>
-        <MenuBar />
+        <Menu />
         <AddSiteForm />
         <Weather />
         <Bookmarks />
-        <OptionsPanel
-          show={this.props.optionsPanelShow}
-          onClose={() => this.props.toggleOptionsPanel(false)}
-        />
       </div>
     );
   }
