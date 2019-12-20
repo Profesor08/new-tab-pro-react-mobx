@@ -180,9 +180,9 @@ const CurrencyConverterItem = ({ currency }: ICurrencyConverterItemProps) => {
 };
 
 export const Currency = observer(() => {
-  if (store.showCurrencyWidget) {
-    const [currencyData, loaded] = useCurrencyApi();
+  const [currencyData, loaded] = useCurrencyApi();
 
+  if (store.showCurrencyWidget) {
     if (loaded && currencyData && currencyData.quotes) {
       const quotes = currencyData.quotes;
 

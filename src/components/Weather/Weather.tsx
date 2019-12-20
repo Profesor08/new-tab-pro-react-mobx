@@ -192,9 +192,9 @@ const useWeatherApi = (): [
 };
 
 export const Weather = observer(() => {
-  if (store.showWeatherWidget) {
-    const [weather, forecast, position, loaded] = useWeatherApi();
+  const [weather, forecast, position, loaded] = useWeatherApi();
 
+  if (store.showWeatherWidget) {
     if (loaded && weather !== null && forecast !== null && position !== null) {
       let forecastList = forecast.list
 
