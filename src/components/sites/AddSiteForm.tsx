@@ -1,172 +1,100 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
+import React, { useState } from "react";
+import { observer } from "mobx-react";
+import options from "./../../store-mobx/options";
 import { Form, ButtonsList, ButtonsListItem } from "../../lib/form";
-import { toggleShow } from "../../store/reducers/addSiteFormApp";
-import { addSite, Site } from "../../store/reducers/sitesApp";
+import sites, { ISite, ISiteProps } from "../../store-mobx/sites";
 
-interface AddSiteFormDispatchProps {
-  addSite: (site: Site) => void;
-  closeForm: () => void;
-}
+const useSite = (): [ISite, React.Dispatch<ISiteProps>] => {
+  const [site, setSite] = useState({ name: "", url: "", image: "" } as ISite);
 
-interface AddSiteFormStateProps {
-  show: boolean;
-}
+  const updateSite = (props: ISiteProps) => {
+    setSite({
+      ...site,
+      ...props,
+    });
+  };
 
-interface AddSiteFormAppState {
-  addSiteForm: AddSiteFormStateProps;
-}
-
-interface SitePartialData {
-  name?: string;
-  url?: string;
-  image?: string;
-}
-
-type State = {
-  show: boolean;
-  site: Site;
+  return [site, updateSite];
 };
 
-type Props = AddSiteFormDispatchProps & AddSiteFormStateProps;
+export const AddSiteForm = observer(() => {
+  const [site, setSite] = useSite();
 
-class AddSiteForm extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      show: false,
-
-      site: {
-        name: "",
-        url: "",
-        image: "",
-      },
-    };
-  }
-
-  saveData = (data: SitePartialData) => {
-    this.setState({
-      site: {
-        ...this.state.site,
-        ...data,
-      },
-    });
+  const clear = () => {
+    setSite({ name: "", url: "", image: "" });
   };
 
-  clearForm = () => {
-    this.setState({
-      site: {
-        name: "",
-        url: "",
-        image: "",
-      },
-    });
+  const close = () => {
+    options.showAddSiteForm = false;
   };
 
-  render() {
-    const title = "Add Site";
+  const title = "Add Site";
 
-    const buttons: ButtonsListItem[] = [
-      {
-        text: "Add",
-        type: "btn-success",
+  const buttons: ButtonsListItem[] = [
+    {
+      text: "Add",
+      type: "btn-success",
+    },
+    {
+      text: "Clear",
+      type: "btn-warning",
+      onClick: event => {
+        event.preventDefault();
+        clear();
       },
-      {
-        text: "Clear",
-        type: "btn-warning",
-        onClick: event => {
-          event.preventDefault();
-          this.clearForm();
-        },
-      },
-    ];
+    },
+  ];
 
-    const buttonsList = <ButtonsList buttons={buttons} />;
+  const buttonsList = <ButtonsList buttons={buttons} />;
 
-    const onSubmit = (e: React.SyntheticEvent) => {
-      e.preventDefault();
-      this.props.addSite(this.state.site);
-      this.props.closeForm();
-      this.clearForm();
-    };
+  const onSubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    sites.add(site);
+    close();
+    clear();
+  };
 
-    const content = (
-      <div>
-        <input
-          type="text"
-          placeholder="Site name"
-          value={this.state.site.name}
-          onChange={e =>
-            this.saveData({
-              name: e.target.value,
-            })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="Site url"
-          value={this.state.site.url}
-          onChange={e =>
-            this.saveData({
-              url: e.target.value,
-            })
-          }
-          required
-        />
-        <input
-          type="text"
-          placeholder="Image url or data:base64"
-          value={this.state.site.image}
-          onChange={e =>
-            this.saveData({
-              image: e.target.value,
-            })
-          }
-          required
-        />
-      </div>
-    );
-
-    const closeAction = () => {
-      this.clearForm();
-      this.props.closeForm();
-    };
-
-    return (
-      <Form
-        title={title}
-        buttons={buttonsList}
-        content={content}
-        closeAction={closeAction}
-        onSubmit={onSubmit}
-        show={this.props.show}
+  const content = (
+    <div>
+      <input
+        type="text"
+        placeholder="Site name"
+        value={site.name}
+        onChange={e => setSite({ name: e.target.value })}
+        required
       />
-    );
-  }
-}
+      <input
+        type="text"
+        placeholder="Site url"
+        value={site.url}
+        onChange={e => setSite({ url: e.target.value })}
+        required
+      />
+      <input
+        type="text"
+        placeholder="Image url or data:base64"
+        value={site.image}
+        onChange={e => setSite({ image: e.target.value })}
+        required
+      />
+    </div>
+  );
 
-const mapStateToProps = (state: AddSiteFormAppState): AddSiteFormStateProps => {
-  return {
-    show: state.addSiteForm.show,
+  const closeAction = () => {
+    clear();
+    close();
   };
-};
 
-const mapDispatchToProps = (dispatch: Dispatch): AddSiteFormDispatchProps => {
-  return {
-    addSite: (site: Site) => {
-      dispatch(addSite(site));
-    },
+  return (
+    <Form
+      title={title}
+      buttons={buttonsList}
+      content={content}
+      closeAction={closeAction}
+      onSubmit={onSubmit}
+      show={options.showAddSiteForm}
+    />
+  );
+});
 
-    closeForm: () => {
-      dispatch(toggleShow(false));
-    },
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AddSiteForm);
+export default AddSiteForm;

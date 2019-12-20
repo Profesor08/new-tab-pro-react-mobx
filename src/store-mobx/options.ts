@@ -7,6 +7,7 @@ export class OptionsStore {
   @observable public showWeatherWidget: boolean = true;
   @observable public showCurrencyWidget: boolean = true;
   @observable public showWebSites: boolean = true;
+  @observable public showAddSiteForm: boolean = false;
   [key: string]: any;
 
   constructor() {

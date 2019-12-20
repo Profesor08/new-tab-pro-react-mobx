@@ -1,3 +1,88 @@
+import React from "react";
+import { observer } from "mobx-react";
+import options from "./../../store-mobx/options";
+import sites, { ISite } from "../../store-mobx/sites";
+import editSite from "../../store-mobx/edit-site";
+import AddSiteButton from "./AddSiteButton";
+import EditSite from "./EditSite";
+import "./sites.scss";
+
+interface ISitesList {
+  style: string;
+  sites: React.ReactNode[];
+}
+
+const SiteItem = observer(({ site, id }: { site: ISite; id: number }) => {
+  let className = "site-button";
+
+  if (options.additionalOptions) {
+    className += " options-active";
+  }
+
+  return (
+    <div className={className}>
+      <div className="name">{site.name}</div>
+      <a className="link" href={site.url}>
+        <div className={`image site-image-${id}`} />
+      </a>
+      <div
+        className="edit-site"
+        onClick={e => {
+          e.preventDefault();
+          editSite.id = id;
+          editSite.active = true;
+        }}
+      >
+        ✎
+      </div>
+      <div className="remove-site" onClick={e => sites.remove(id)}>
+        ×
+      </div>
+    </div>
+  );
+});
+
+const getSitesList = () => {
+  return sites.sites.reduce(
+    (acc: ISitesList, site: ISite, id: number) => {
+      acc.style += `
+      .site-button .image.site-image-${id} {
+        background-image: url(${site.image});
+      }
+      `;
+
+      acc.sites.push(<SiteItem key={`site-item-${id}`} site={site} id={id} />);
+
+      return acc;
+    },
+    {
+      style: "",
+      sites: [],
+    },
+  );
+};
+
+export const Sites = observer(() => {
+  if (options.showWebSites) {
+    const { style, sites: sitesList } = getSitesList();
+
+    return (
+      <div className="sites-container">
+        <style>{style}</style>
+        <EditSite />
+        <div className="sites-grid">
+          {sitesList}
+          <AddSiteButton />
+        </div>
+      </div>
+    );
+  }
+  return null;
+});
+
+export default Sites;
+
+/*
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { connect } from "react-redux";
@@ -12,6 +97,7 @@ import {
 import { OptionsAppInitialState } from "../../store/reducers/optionsApp";
 import AddSiteButton from "./AddSiteButton";
 import EditSite from "./EditSite";
+import sites, { ISite } from "../../store-mobx/sites";
 
 function constrain(n: number, low: number, high: number): number {
   return Math.max(Math.min(n, high), low);
@@ -223,25 +309,7 @@ class Sites extends Component<Props, State> {
     return (
       <div className="sites-container">
         <style>{sitesStyle}</style>
-        <EditSite
-          site={this.state.selectedSite}
-          submit={(site: Site) => {
-            if (this.state.selectedSiteIndex !== null) {
-              this.props.updateSite(this.state.selectedSiteIndex, site);
-            }
-
-            this.setState({
-              selectedSite: null,
-              selectedSiteIndex: null,
-            });
-          }}
-          close={() => {
-            this.setState({
-              selectedSite: null,
-              selectedSiteIndex: null,
-            });
-          }}
-        />
+        <EditSite site={this.state.selectedSite as ISite} />
         <div className="sites-grid">
           {sites}
           <AddSiteButton />
@@ -271,7 +339,5 @@ const mapDispatchToProps = (dispatch: Dispatch): SitesDispatchProps => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Sites);
+export default connect(mapStateToProps, mapDispatchToProps)(Sites);
+*/
