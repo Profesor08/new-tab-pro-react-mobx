@@ -1,49 +1,6 @@
 import React, { useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 
-let speechRecognition: SpeechRecognition | null = null;
-
-const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
-  const [recording, setRecording] = useState(false);
-
-  try {
-    if (speechRecognition === null) {
-      speechRecognition = new webkitSpeechRecognition();
-
-      speechRecognition.addEventListener("result", event => {
-        setRecording(false);
-
-        window.open(
-          "http://google.ru/search?q=" + event.results[0][0].transcript,
-          "",
-        );
-      });
-
-      speechRecognition.addEventListener(
-        "error",
-        (event: SpeechRecognitionError) => {
-          if (event.error !== "no-speech") {
-            console.warn("%cERROR: " + event.error, "color: #FF0000;");
-            console.warn(event);
-          }
-
-          setRecording(false);
-        },
-      );
-    }
-
-    if (recording) {
-      speechRecognition.start();
-    } else {
-      speechRecognition.stop();
-    }
-  } catch (err) {
-    console.warn(err);
-  }
-
-  return [recording, setRecording];
-};
-
 const pulse = keyframes`
   0% {
     transform: translate(0, 10%) scale3d(1, 1, 1) translateZ(0);
@@ -112,6 +69,49 @@ const Button = styled.div<IButtonProps>`
     }
   }
 `;
+
+let speechRecognition: SpeechRecognition | null = null;
+
+const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
+  const [recording, setRecording] = useState(false);
+
+  try {
+    if (speechRecognition === null) {
+      speechRecognition = new webkitSpeechRecognition();
+
+      speechRecognition.addEventListener("result", event => {
+        setRecording(false);
+
+        window.open(
+          "http://google.ru/search?q=" + event.results[0][0].transcript,
+          "",
+        );
+      });
+
+      speechRecognition.addEventListener(
+        "error",
+        (event: SpeechRecognitionError) => {
+          if (event.error !== "no-speech") {
+            console.warn("%cERROR: " + event.error, "color: #FF0000;");
+            console.warn(event);
+          }
+
+          setRecording(false);
+        },
+      );
+    }
+
+    if (recording) {
+      speechRecognition.start();
+    } else {
+      speechRecognition.stop();
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+
+  return [recording, setRecording];
+};
 
 export const VoiceSearch = () => {
   const [recording, setRecording] = useSpeechRecognition();
