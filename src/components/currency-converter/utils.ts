@@ -52,9 +52,21 @@ export async function getCurrencyData(): Promise<ICurrencyItem[]> {
       },
     );
 
-    return currencyData.filter(currency => {
-      return store.displayCurrencies.includes(currency.name);
-    });
+    return currencyData
+      .filter(currency => {
+        return store.displayCurrencies.includes(currency.name);
+      })
+      .reduce((acc: ICurrencyItem[], currency) => {
+        const id = store.displayCurrencies.findIndex(name => {
+          return currency.name === name;
+        });
+
+        if (id >= 0) {
+          acc[id] = currency;
+        }
+
+        return acc;
+      }, new Array(store.displayCurrencies.length));
   } catch (err) {
     console.warn(err);
     return [];
