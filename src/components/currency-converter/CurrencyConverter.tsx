@@ -12,7 +12,7 @@ const List = styled.div`
 const ListHeader = styled.div`
   display: grid;
   grid-template-columns: 1fr 3fr 3fr 3fr;
-  grid-gap: 5px;
+  grid-gap: 5px 10px;
   margin-bottom: 5px;
 `;
 
@@ -22,22 +22,17 @@ const ListHeaderItem = styled.div`
 `;
 
 const HeaderCurrency = styled(ListHeaderItem)`
-  flex: 0 0 40%;
   grid-column: span 2;
 `;
 
-const HeaderCurrencyDefault = styled(ListHeaderItem)`
-  flex: 0 0 30%;
-`;
+const HeaderCurrencyDefault = styled(ListHeaderItem)``;
 
-const HeaderCurrencyRate = styled(ListHeaderItem)`
-  flex: 0 0 30%;
-`;
+const HeaderCurrencyRate = styled(ListHeaderItem)``;
 
 const ListItem = styled.div`
   display: grid;
   grid-template-columns: 1fr 3fr 3fr 3fr;
-  grid-gap: 5px;
+  grid-gap: 5px 10px;
   font-size: 0.8rem;
 `;
 
@@ -55,7 +50,6 @@ const CurrencyInput = styled.input.attrs({
 })`
   width: 100%;
   min-width: 0;
-  flex: 1;
   background-color: transparent;
   border: 0;
   outline: none;
@@ -70,7 +64,7 @@ const CurrencyRate = styled(TextItem)``;
 
 const CurrencyItem = ({ currency }: { currency: ICurrencyItem }) => {
   const [nominal, setNominal] = useState(currency.nominal.toFixed(2));
-  const [value, setValue] = useState(currency.value.toString());
+  const [value, setValue] = useState(currency.value.toFixed(2));
   const rate = currency.value / currency.nominal;
 
   return (
