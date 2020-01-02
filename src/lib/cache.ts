@@ -1,74 +1,98 @@
-type PrimitiveType = number | string | boolean | void | null | undefined | any;
-
-type PrimitiveArray = PrimitiveType[];
-
-interface JsonObject {
-  [key: string]: JsonObject | PrimitiveType | PrimitiveArray;
-}
-
-type JsonType = JsonObject | PrimitiveType | PrimitiveArray;
-
 interface CacheObject {
-  data: JsonType;
+  data: any;
   expire: number;
 }
 
-const KEY_ERROR = "key must be a not empty string.";
-const LOCAL_STORAGE_ERROR = "localStorage is not available.";
+export const isStorageAvailable = () => {
+  return chrome.storage !== undefined;
+};
 
-function checkKey(key: string) {
-  if (typeof key !== "string" || key.length === 0) {
-    throw new Error(KEY_ERROR);
-  }
-}
+export const getStorageCache = (key: string): Promise<CacheObject> =>
+  new Promise(resolve => {
+    chrome.storage.local.get([key], (result: any) => {
+      try {
+        if (result[key] !== undefined) {
+          resolve(result[key]);
+        } else {
+          resolve({
+            data: null,
+            expire: 0,
+          });
+        }
+      } catch (err) {
+        console.warn(err);
 
-export function getCache(key: string): CacheObject {
-  checkKey(key);
+        resolve({
+          data: null,
+          expire: 0,
+        });
+      }
+    });
+  });
 
-  let json: string | null = null;
-
-  try {
-    json = localStorage.getItem(key);
-  } catch {
-    throw new Error(LOCAL_STORAGE_ERROR);
-  }
-
-  if (json) {
+export const getLocalCache = (key: string): Promise<CacheObject> =>
+  new Promise(resolve => {
     try {
-      const data: CacheObject = JSON.parse(json);
+      const json = localStorage.getItem(key);
 
-      return data;
-    } catch {}
+      if (json) {
+        resolve(JSON.parse(json) as CacheObject);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+
+    resolve({
+      data: null,
+      expire: 0,
+    });
+  });
+
+export const setStorageCache = (key: string, data: CacheObject) => {
+  const storage: { [key: string]: any } = {};
+
+  storage[key] = data;
+
+  chrome.storage.local.set(storage);
+};
+
+export const setLocalCache = (key: string, data: CacheObject) => {
+  const json = JSON.stringify(data);
+
+  localStorage.setItem(key, json);
+};
+
+export const getCache = async (key: string): Promise<CacheObject> => {
+  if (isStorageAvailable()) {
+    return await getStorageCache(key);
   }
 
-  return {
-    data: null,
-    expire: 0,
-  };
-}
+  return await getLocalCache(key);
+};
 
-export function setCache(key: string, data: JsonType, time: number) {
-  checkKey(key);
-
-  const cachedData = {
+export function setCache(key: string, data: any, time: number) {
+  const cachedData: CacheObject = {
     data: data,
     expire: Date.now() + time,
   };
 
-  const json = JSON.stringify(cachedData);
-
-  localStorage.setItem(key, json);
+  try {
+    if (isStorageAvailable()) {
+    } else {
+      setLocalCache(key, cachedData);
+    }
+  } catch (err) {
+    console.warn(err);
+  }
 }
 
-export async function cache(
+export const cache = async (
   key: string,
-  callback: () => void,
+  callback: () => any,
   time = 300000,
-): Promise<JsonType> {
-  checkKey(key);
-
+): Promise<any> => {
   try {
-    let { data, expire } = getCache(key);
+    let { data, expire } = await getCache(key);
 
     if (expire > Date.now()) {
       return data;
@@ -80,9 +104,4 @@ export async function cache(
   setCache(key, data, time);
 
   return data;
-}
-
-export default {
-  get: getCache,
-  set: setCache,
 };
