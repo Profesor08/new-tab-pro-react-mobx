@@ -1,10 +1,14 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { observer } from "mobx-react";
-import options from "../../store-mobx/options";
-import styled from "styled-components";
+import options from "../../store/options";
+import styled, { css } from "styled-components";
 import { theme } from "../../theme/theme-default";
 
-const Panel = styled.div`
+interface IPanelProps {
+  active?: boolean;
+}
+
+const Panel = styled.div<IPanelProps>`
   position: fixed;
   top: 10px;
   left: 0;
@@ -19,11 +23,13 @@ const Panel = styled.div`
   transition: ease opacity 0.3s, ease transform 0.3s;
   outline: none;
 
-  &:focus,
-  &:focus-within {
-    transform: translate(50px, 0);
-    opacity: 1;
-  }
+  ${p =>
+    p.active
+      ? css`
+          transform: translate(50px, 0);
+          opacity: 1;
+        `
+      : null}
 `;
 
 const ButtonText = styled.div`
@@ -80,14 +86,22 @@ const OptionsButton = ({
 
 export const OptionsPanel = observer(() => {
   const ref: React.MutableRefObject<null | HTMLDivElement> = useRef(null);
+  const [active, setActive] = useState(options.optionsPanelShow);
 
-  if (options.optionsPanelShow && ref.current !== null) {
-    ref.current.focus();
-  }
+  useEffect(() => {
+    setActive(options.optionsPanelShow);
+  }, [options.optionsPanelShow]);
+
+  useEffect(() => {
+    if (active && ref.current !== null) {
+      ref.current.focus();
+    }
+  }, [ref.current, active]);
 
   return (
     <Panel
       ref={ref}
+      active={active}
       tabIndex={-1}
       onBlur={() => {
         options.optionsPanelShow = false;
@@ -136,5 +150,3 @@ export const OptionsPanel = observer(() => {
     </Panel>
   );
 });
-
-export default OptionsPanel;

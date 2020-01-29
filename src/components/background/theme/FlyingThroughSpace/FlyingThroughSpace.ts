@@ -1,14 +1,32 @@
 import * as THREE from "three";
 const OrbitControls = require("three-orbit-controls")(THREE);
-import textures from "./images";
-import { vertexShader, fragmentShader } from "./shaders";
 import starSpectralColors from "./starSpectralColors";
+import fragmentShader from "!raw-loader!./shaders/fragmentShader.glsl";
+import vertexShader from "!raw-loader!./shaders/vertexShader.glsl";
 
 function rand(min: number, max: number): number {
   return Math.random() * (max - min) + min;
 }
 
-class FlyingThroughSpace {
+const loader = new THREE.TextureLoader();
+
+export const texture1: THREE.Texture = loader.load(
+  "/images/background/stars/image-1.png",
+);
+
+export const texture2: THREE.Texture = loader.load(
+  "/images/background/stars/image-2.png",
+);
+
+export const texture3: THREE.Texture = loader.load(
+  "/images/background/stars/image-3.png",
+);
+
+export const texture4: THREE.Texture = loader.load(
+  "/images/background/stars/image-4.png",
+);
+
+export class FlyingThroughSpace {
   _background: THREE.Color;
   _paused: boolean;
   _isAnimating: boolean;
@@ -62,10 +80,10 @@ class FlyingThroughSpace {
     this._scene = new THREE.Scene();
 
     this._uniforms = {
-      texture1: { value: textures.texture1 },
-      texture2: { value: textures.texture2 },
-      texture3: { value: textures.texture3 },
-      texture4: { value: textures.texture4 },
+      texture1: { value: texture1 },
+      texture2: { value: texture2 },
+      texture3: { value: texture3 },
+      texture4: { value: texture4 },
       time: {
         type: "f",
         value: this._time,
@@ -191,5 +209,3 @@ class FlyingThroughSpace {
     this._render();
   };
 }
-
-export default FlyingThroughSpace;

@@ -1,24 +1,40 @@
-import React, { Component } from "react";
-import "./close-button.scss";
+import styled from "styled-components";
 
-export const CloseButton = ({
-  children,
-  onClick,
-  className,
-}: {
-  children?: React.ReactNode;
-  onClick?: () => void;
-  className?: string;
-}) => {
-  let buttonClass = "close-button";
+export const CloseButton = styled.div`
+  width: 30px;
+  height: 30px;
+  position: relative;
+  background-color: transparent;
+  border: 0;
+  outline: navajowhite;
 
-  if (className) {
-    buttonClass += " " + className;
+  &:hover {
+    cursor: pointer;
+
+    &:before,
+    &:after {
+      background: red;
+    }
   }
 
-  return (
-    <button className={buttonClass} onClick={onClick}>
-      {children}
-    </button>
-  );
-};
+  &:before,
+  &:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 1px;
+    background: black;
+    transition: all ease 250ms;
+  }
+
+  &:before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  &:after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+`;

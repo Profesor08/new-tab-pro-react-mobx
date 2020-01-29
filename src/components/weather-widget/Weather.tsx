@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { observer } from "mobx-react";
-import store from "../../store-mobx/options";
+import store from "../../store/options";
 import { WeatherIcon } from "./Icon";
 import { useWeather } from "./utils";
 

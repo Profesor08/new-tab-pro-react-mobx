@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react";
 import styled from "styled-components";
-import store from "../../store-mobx/options";
+import store from "../../store/options";
 import { useCurrencyData, selectInput } from "./utils";
 
 const List = styled.div`

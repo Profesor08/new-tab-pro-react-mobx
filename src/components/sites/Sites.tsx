@@ -1,200 +1,228 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { observer } from "mobx-react";
-import options from "./../../store-mobx/options";
-import sites, { ISite } from "../../store-mobx/sites";
-import editSite from "../../store-mobx/edit-site";
-import AddSiteButton from "./AddSiteButton";
-import EditSite from "./EditSite";
-import "./sites.scss";
+import options from "./../../store/options";
+import sites from "../../store/sites";
+import editSite from "../../store/edit-site";
+import { EditSiteForm } from "./EditSiteForm";
+import styled from "styled-components";
+import { theme } from "../../theme/theme-default";
+import { AddSiteForm } from "./AddSiteForm";
+import { AnimationPanel } from "../animation-panel/AnimationPanel";
 
-interface ISitesList {
-  style: string;
-  sites: React.ReactNode[];
-}
+const SitesList = styled(AnimationPanel)`
+  position: relative;
+  z-index: 30;
+  display: grid;
+  grid-gap: 10px;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 100px auto 100px auto;
+  max-width: 1000px;
 
-const SiteItem = observer(({ site, id }: { site: ISite; id: number }) => {
-  let className = "site-button";
-
-  if (options.additionalOptions) {
-    className += " options-active";
+  @media (max-width: 1300px) {
+    grid-template-columns: repeat(4, 1fr);
   }
 
-  return (
-    <div className={className}>
-      <div className="name">{site.name}</div>
-      <a className="link" href={site.url}>
-        <div className={`image site-image-${id}`} />
-      </a>
-      <div
-        className="edit-site"
-        onClick={e => {
-          e.preventDefault();
-          editSite.id = id;
-          editSite.active = true;
-        }}
-      >
-        ✎
-      </div>
-      <div className="remove-site" onClick={e => sites.remove(id)}>
-        ×
-      </div>
-    </div>
-  );
-});
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
 
-const getSitesList = () => {
-  return sites.sites.reduce(
-    (acc: ISitesList, site: ISite, id: number) => {
-      acc.style += `
-      .site-button .image.site-image-${id} {
-        background-image: url(${site.image});
-      }
-      `;
+const SiteName = styled.div`
+  padding: 3px 5px 3px 10px;
+  background: rgba(0, 0, 0, 0.15);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  color: ${theme.siteNameColor};
+  transition: ease color ${theme.animationSpeed};
+  font-size: 14px;
+`;
 
-      acc.sites.push(<SiteItem key={`site-item-${id}`} site={site} id={id} />);
+const SiteLink = styled.div`
+  display: block;
+  padding-top: 53%;
+  flex: 1 0 100%;
+  width: 100%;
+  position: relative;
+`;
 
-      return acc;
-    },
-    {
-      style: "",
-      sites: [],
-    },
-  );
-};
-
-function constrain(n: number, low: number, high: number): number {
-  return Math.max(Math.min(n, high), low);
+interface ISiteImageProps {
+  src?: string;
 }
 
-function map(
-  value: number,
-  start1: number,
-  stop1: number,
-  start2: number,
-  stop2: number,
-  withinBounds?: boolean,
-): number {
-  let newValue =
-    ((value - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
-  if (!withinBounds) {
-    return newValue;
-  }
-  if (start2 < stop2) {
-    return constrain(newValue, start2, stop2);
-  } else {
-    return constrain(newValue, stop2, start2);
-  }
+const SiteImage = styled.div<ISiteImageProps>`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 70%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  background: no-repeat center center;
+  background-image: url(${p => p.src});
+  background-size: contain;
+  transform-origin: 0 0;
+  transition: ease transform ${theme.animationSpeed};
+`;
+
+const SiteIcon = styled.svg`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 50%;
+  width: auto;
+  fill: ${theme.siteAddButtonIconColor};
+  opacity: 0.6;
+  transition: ease opacity ${theme.animationSpeed},
+    ease fill ${theme.animationSpeed}, ease transform ${theme.animationSpeed};
+`;
+
+interface ISiteButtonProps {
+  size: number;
 }
 
-let initialized = false;
+interface ISiteButtonProps {
+  active?: boolean;
+}
 
-const initSitesPanelAnimation = (
-  ref: React.MutableRefObject<null | HTMLElement>,
-) => {
-  useEffect(() => {
-    const container = ref.current;
+const SiteButton = styled.div<ISiteButtonProps>`
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  font-size: ${p => p.size}px;
+  color: grey;
+  transition: ease color ${theme.animationSpeed};
+  display: ${p => (p.active ? "flex" : "none")};
+  align-items: center;
+  justify-content: center;
+`;
 
-    if (container && initialized === false) {
-      initialized = false;
+const EditSiteButton = styled(SiteButton).attrs({
+  size: 14,
+})`
+  &:before {
+    content: "✎";
+  }
 
-      let activated = false;
+  &:hover {
+    color: green;
+  }
+`;
 
-      const pos = {
-        mx: container.offsetWidth / 2,
-        my: container.offsetHeight / 2,
-        x: container.offsetWidth / 2,
-        y: container.offsetHeight / 2,
-        rx: container.offsetWidth / 2,
-        ry: container.offsetHeight / 2,
-      };
+const RemoveSiteButton = styled(SiteButton).attrs({
+  size: 20,
+})`
+  &:before {
+    content: "×";
+  }
 
-      let lastTime = Date.now();
-      const speed = 3.0;
+  &:hover {
+    color: red;
+  }
+`;
 
-      container.addEventListener("mouseenter", e => {
-        pos.mx = container.offsetWidth / 2;
-        pos.my = container.offsetHeight / 2;
-        pos.x = pos.mx;
-        pos.y = pos.my;
+const SiteHeader = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0 5px 0 0;
 
-        if (activated === false) {
-          activated = true;
-          animate();
-        }
-      });
+  ${SiteName} {
+    flex: 1;
+  }
+`;
 
-      container.addEventListener("mousemove", e => {
-        const rect = container.getBoundingClientRect();
-        pos.mx = e.clientX - rect.left;
-        pos.my = e.clientY - rect.top;
-      });
+const SiteItem = styled.div`
+  background-color: ${theme.siteBackgroundColor};
+  border: 2px solid ${theme.siteBorderColor};
+  border-radius: 5px;
+  min-width: 0;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  transition: ease background-color ${theme.animationSpeed},
+    ease border-color ${theme.animationSpeed},
+    ease transform ${theme.animationSpeed};
+  transform: translateZ(0);
 
-      container.addEventListener("mouseleave", e => {
-        pos.mx = container.offsetWidth / 2;
-        pos.my = container.offsetHeight / 2;
-      });
+  &:hover {
+    cursor: pointer;
+    background-color: ${theme.siteHoverBackgroundColor};
+    border-color: ${theme.siteHoverBorderColor};
+    transform: perspective(900px) translateZ(30px);
 
-      const animate = () => {
-        requestAnimationFrame(animate);
-
-        const now = Date.now();
-        const dt = now - lastTime;
-        lastTime = now;
-
-        let ease_t = (dt / 1000) * speed;
-
-        if (ease_t > 1) {
-          ease_t = 1;
-        }
-
-        pos.x += (pos.mx - pos.x) * ease_t;
-        pos.y += (pos.my - pos.y) * ease_t;
-
-        let halfW = container.offsetWidth / 2;
-        let halfH = container.offsetHeight / 2;
-
-        let rotateY = parseFloat(
-          map(Math.abs(pos.x - halfW), 0, halfW, 0, 5).toFixed(5),
-        );
-
-        let rotateX = parseFloat(
-          map(Math.abs(pos.y - halfH), 0, halfH, 0, 5).toFixed(5),
-        );
-
-        if (pos.x - halfW < 0) {
-          rotateY *= -1;
-        }
-
-        if (pos.y - halfH > 0) {
-          rotateX *= -1;
-        }
-
-        container.style.transform = `perspective(900px) rotateX(${-rotateX}deg) rotateY(${-rotateY}deg) translate3d(0, 0, 0)`;
-      };
+    ${SiteName} {
+      color: ${theme.siteHoverNameColor};
     }
-  });
-};
+  }
+
+  &:active {
+    background-color: ${theme.siteActiveBackgroundColor};
+    border-color: ${theme.siteActiveBorderColor};
+
+    ${SiteName} {
+      color: ${theme.siteActiveNameColor};
+    }
+  }
+`;
+
+const SiteIconItem = styled(SiteItem)`
+  padding-top: calc(53% + 22.8px);
+
+  &:hover {
+    ${SiteIcon} {
+      opacity: 0.9;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+  }
+`;
 
 export const Sites = observer(() => {
-  const ref: React.MutableRefObject<any> = useRef(null);
-
-  initSitesPanelAnimation(ref);
-
-  if (options.showWebSites) {
-    const { style, sites: sitesList } = getSitesList();
-
-    return (
-      <div className="sites-container" ref={ref}>
-        <style>{style}</style>
-        <EditSite />
-        <div className="sites-grid">
-          {sitesList}
-          <AddSiteButton />
-        </div>
-      </div>
-    );
-  }
-  return null;
+  return (
+    <React.Fragment>
+      <SitesList>
+        {sites.sites.map((site, id) => (
+          <SiteItem key={`site-item-${id}`}>
+            <SiteHeader>
+              <SiteName>{site.name}</SiteName>
+              <EditSiteButton
+                active={options.additionalOptions}
+                onClick={() => {
+                  editSite.id = id;
+                  editSite.active = true;
+                }}
+              />
+              <RemoveSiteButton
+                active={options.additionalOptions}
+                onClick={() => {
+                  sites.remove(id);
+                }}
+              />
+            </SiteHeader>
+            <SiteLink
+              onClick={() => {
+                document.location.href = site.url;
+              }}
+            >
+              <SiteImage src={site.image} />
+            </SiteLink>
+          </SiteItem>
+        ))}
+        <SiteIconItem
+          onClick={() => {
+            options.showAddSiteForm = true;
+          }}
+        >
+          <SiteIcon viewBox="0 0 301 301">
+            <path d="M112.5.5h76c9,0,12,5,12,12v88h88c7.45,0,12,4.49,12,12v76c0,7.38-4.48,12-12,12h-88v88c0,8-5.5,12-16,12h-76c-7.62,0-8-5.75-8-12v-88h-88c-7.54,0-12-4-12-12v-76c0-7.73,5.23-12,12-12h88v-88C100.5,4.69,103.78.5,112.5.5Z" />
+          </SiteIcon>
+        </SiteIconItem>
+      </SitesList>
+      <EditSiteForm />
+      <AddSiteForm />
+    </React.Fragment>
+  );
 });
-
-export default Sites;

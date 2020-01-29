@@ -1,13 +1,19 @@
 import { cache } from "../../lib/cache";
 import { useState } from "react";
 import { useEffect } from "react";
-import store from "../../store-mobx/currency";
+import store from "../../store/currency";
 
 export async function loadCurrencyData() {
+  const date = new Date();
+
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
   const response = await fetch(
     "https://proxy.e-webdev.ru/?url=" +
       escape(
-        "https://www.bnm.md/ru/official_exchange_rates?get_xml=1&date=30.12.2019",
+        `https://www.bnm.md/ru/official_exchange_rates?get_xml=1&date=${day >= 10 ? day : `0${day}`}.${month >= 10 ? month : `0${month}`}.${year}`,
       ),
   );
 

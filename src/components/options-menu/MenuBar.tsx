@@ -1,20 +1,16 @@
 import React from "react";
 import { observer } from "mobx-react";
-import options from "../../store-mobx/options";
-import bookmarks from "../../store-mobx/bookmarks";
+import options from "../../store/options";
+import bookmarks from "../../store/bookmarks/store";
 import styled from "styled-components";
 import { theme } from "../../theme/theme-default";
 
-const Icon = styled.i.attrs({
-  className: "icon",
-})`
+const Icon = styled.i`
   font-style: normal;
   transition: ease color 0.2s;
 `;
 
-const MenuButton = styled.div.attrs({
-  className: "menu-button",
-})`
+const MenuButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,9 +38,7 @@ const MenuButton = styled.div.attrs({
   }
 `;
 
-const MenuBar = styled.div.attrs({
-  className: "menu-bar",
-})`
+const MenuContainer = styled.div`
   position: fixed;
   top: 10px;
   left: 10px;
@@ -55,9 +49,9 @@ const MenuBar = styled.div.attrs({
   z-index: 100;
 `;
 
-export const Menu = observer(() => {
+export const MenuBar = observer(() => {
   return (
-    <MenuBar>
+    <MenuContainer>
       <MenuButton
         onClick={() => {
           options.optionsPanelShow = true;
@@ -72,8 +66,6 @@ export const Menu = observer(() => {
       >
         <Icon>★</Icon>
       </MenuButton>
-    </MenuBar>
+    </MenuContainer>
   );
 });
-
-export default Menu;

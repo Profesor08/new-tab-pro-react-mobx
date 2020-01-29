@@ -16,6 +16,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
 
   "permissions": [
+    "storage",
     "bookmarks",
     "chrome://favicon/",
     "history",
@@ -25,7 +26,8 @@
     "http://ajax.googleapis.com/*",
     "https://google.com/",
     "http://127.0.0.1/",
-    "http://www.calend.ru/"
+    "http://www.calend.ru/",
+    "https://www.maib.md/"
   ],
 
   "version": "3.2.2",

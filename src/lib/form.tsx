@@ -1,111 +1,273 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
+import styled, { css } from "styled-components";
+import { theme, themeColorMixin } from "../theme/theme-default";
+import { CloseButton } from "../components/buttons/CloseButton";
 
-export interface CloseButtonProps {
-  onClick?: (event: React.SyntheticEvent) => void;
+const FormContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 1000;
+`;
+
+interface IFormBackdropProps {
+  active: boolean;
 }
 
-export class CloseButton extends Component<CloseButtonProps> {
-  render() {
-    return (
-      <div className="form-close" onClick={this.props.onClick}>
-        <svg
-          className="close-image"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 174.239 174.239"
-        >
-          <path
-            d="M146.537,1.047c-1.396-1.396-3.681-1.396-5.077,0L89.658,52.849c-1.396,1.396-3.681,1.396-5.077,0L32.78,1.047
-      c-1.396-1.396-3.681-1.396-5.077,0L1.047,27.702c-1.396,1.396-1.396,3.681,0,5.077l51.802,51.802c1.396,1.396,1.396,3.681,0,5.077
-      L1.047,141.46c-1.396,1.396-1.396,3.681,0,5.077l26.655,26.655c1.396,1.396,3.681,1.396,5.077,0l51.802-51.802
-      c1.396-1.396,3.681-1.396,5.077,0l51.801,51.801c1.396,1.396,3.681,1.396,5.077,0l26.655-26.655c1.396-1.396,1.396-3.681,0-5.077
-      l-51.801-51.801c-1.396-1.396-1.396-3.681,0-5.077l51.801-51.801c1.396-1.396,1.396-3.681,0-5.077L146.537,1.047z"
-          />
-        </svg>
-      </div>
-    );
+const FormBackdrop = styled.div<IFormBackdropProps>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: ease opacity ${theme.animationSpeed};
+
+  ${props =>
+    props.active === false
+      ? css`
+          opacity: 0;
+          transform: translateX(-1000%) !important;
+          transition: ease opacity ${theme.animationSpeed}, ease transform 0s;
+          transition-delay: 0s, ${theme.animationSpeed};
+        `
+      : null}
+`;
+
+export const FormButtonsGroup = styled.div``;
+
+interface IFormButtonProps {
+  primary?: true;
+  secondary?: true;
+  error?: true;
+  warning?: true;
+  info?: true;
+  success?: true;
+  warn?: true;
+  danger?: true;
+}
+
+export const FormButton = styled.button<IFormButtonProps>`
+  font-size: 0.875rem;
+  min-width: 64px;
+  box-sizing: border-box;
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+    border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  border-radius: 4px;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  border: 0;
+  background: transparent;
+  padding: 6px 8px;
+  ${props => themeColorMixin(props)}
+
+  &:hover {
+    cursor: pointer;
   }
+`;
+
+const FormCloseContainer = styled.div`
+  grid-area: close;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const FormCloseButton = styled(CloseButton)`
+  width: 20px;
+  height: 20px;
+`;
+
+const FormInputText = styled.input`
+  margin: 0;
+  display: block;
+  padding: 3px 0 7px 0;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+  font-size: 1rem;
+`;
+
+const FormInputLabel = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transition: color 200ms cubic-bezier(0, 0, 0.2, 1) 0ms,
+    transform 200ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 1rem;
+  letter-spacing: 0.00938em;
+  transform-origin: top left;
+
+  + ${FormInputText} {
+    margin-top: 16px;
+  }
+`;
+
+interface IFormInputProps {
+  active?: boolean;
+  hasText?: boolean;
 }
 
-export interface ButtonProps {
-  key?: number;
+const FormInputWrapper = styled.div<IFormInputProps>`
+  position: relative;
+  overflow: auto;
+
+  ${FormInputLabel} {
+    transform: ${p =>
+      p.active || p.hasText
+        ? `translate(0, 1.5px) scale(0.75) translateZ(0)`
+        : `translate(0, 18px) scale(1) translateZ(0)`};
+    color: ${p => (p.active ? `#1976d2` : `rgba(0, 0, 0, 0.54)`)};
+  }
+
+  ${FormInputText} {
+    border-color: ${p => (p.active ? `#1976d2` : `lightgrey`)};
+  }
+
+  ${FormInputText}:hover & {
+    background: red;
+  }
+`;
+
+interface IFormTextFieldProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+}
+
+export const FormTextField = ({
+  value,
+  label,
+  ...attributes
+}: IFormTextFieldProps) => {
+  const [active, setActive] = useState(false);
+  const [hasText, setHasText] = useState(
+    value !== undefined && value.toString().length > 0,
+  );
+
+  useEffect(() => {
+    setHasText(value !== undefined && value.toString().length > 0);
+  }, [value]);
+
+  return (
+    <FormInputWrapper active={active} hasText={hasText}>
+      <FormInputLabel>{label}</FormInputLabel>
+      <FormInputText
+        onFocus={() => setActive(true)}
+        onBlur={() => setActive(false)}
+        onChange={e => setHasText(e.target.value.length > 0)}
+        value={value}
+        {...attributes}
+      />
+    </FormInputWrapper>
+  );
+};
+
+export const FormParagraph = styled.p`
+  margin: 0 0 12px 0;
+`;
+
+interface IFormElementProps {
+  active: boolean;
+}
+
+const FormElement = styled.form<IFormElementProps>`
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) !important;
+  background-color: white;
+  width: 500px;
+  transition: ease opacity ${theme.animationSpeed}, ease transform 0s,
+    ease top ${theme.animationSpeed};
+  transition-delay: 0s, 0s, 0s;
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  display: grid;
+  grid-template:
+    "header close" auto
+    "body body" auto
+    "footer footer" auto / 1fr 50px;
+
+  ${props =>
+    props.active === false
+      ? css`
+          opacity: 0;
+          top: calc(50% + 20px);
+          transition: ease opacity ${theme.animationSpeed}, ease transform 0s,
+            ease top ${theme.animationSpeed};
+          transition-delay: 0s, ${theme.animationSpeed}, 0s;
+          transform: translateX(-1000vw) !important;
+        `
+      : null}
+`;
+
+export const FormHeader = styled.div`
+  padding: 0 10px 0 60px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 20px;
+  font-weight: 300;
+  grid-area: header;
+`;
+
+export const FormBody = styled.div`
+  padding: 16px 24px;
+  grid-area: body;
+
+  ${FormInputWrapper} {
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  ${FormParagraph} {
+    margin-bottom: 12px;
+  }
+`;
+
+export const FormFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  grid-area: footer;
+`;
+
+interface IFormProps {
+  active: boolean;
+  closeAction?: () => any;
   children?: React.ReactNode;
-  type?: string;
-  onClick?: (event: React.SyntheticEvent) => void;
+  onSubmit?: ((event: React.FormEvent<HTMLFormElement>) => void) | undefined;
 }
 
-export class Button extends Component<ButtonProps> {
-  render() {
-    let className = "btn";
-
-    if (this.props.type) {
-      className += " " + this.props.type;
-    } else {
-      className += " btn-default";
-    }
-
-    return (
-      <button onClick={this.props.onClick} className={className}>
-        {this.props.children}
-      </button>
-    );
-  }
-}
-
-export interface ButtonsListItem {
-  text?: React.ReactNode;
-  type?: string;
-  onClick?: (event: React.SyntheticEvent) => void;
-}
-
-export interface ButtonsListProps {
-  buttons?: ButtonsListItem[];
-}
-
-export class ButtonsList extends Component<ButtonsListProps> {
-  render() {
-    if (this.props.buttons) {
-      return this.props.buttons.map(
-        (button: ButtonsListItem, index: number) => {
-          return (
-            <Button key={index} onClick={button.onClick} type={button.type}>
-              {button.text}
-            </Button>
-          );
-        },
-      );
-    } else {
-      return null;
-    }
-  }
-}
-
-export interface FormProps {
-  title?: React.ReactNode;
-  content?: React.ReactNode;
-  show?: boolean;
-  closeAction?: (event: React.SyntheticEvent) => void;
-  onSubmit?: (event: React.SyntheticEvent) => void;
-  buttons?: JSX.Element;
-}
-
-export class Form extends Component<FormProps> {
-  render() {
-    let formContainer = "form-container";
-
-    if (this.props.show) {
-      formContainer += " is-active";
-    }
-
-    return (
-      <div className={formContainer}>
-        <div className="form-backdrop" onClick={this.props.closeAction} />
-        <form className="form" onSubmit={this.props.onSubmit}>
-          <CloseButton onClick={this.props.closeAction} />
-          <div className="form-header">{this.props.title}</div>
-          <div className="form-body">{this.props.content}</div>
-          <div className="form-footer">{this.props.buttons}</div>
-        </form>
-      </div>
-    );
-  }
-}
+export const Form = ({
+  active,
+  closeAction,
+  children,
+  onSubmit,
+}: IFormProps) => {
+  return (
+    <FormContainer>
+      <FormBackdrop active={active} onClick={closeAction} />
+      <FormElement active={active} onSubmit={onSubmit}>
+        <FormCloseContainer>
+          <FormCloseButton onClick={closeAction} />
+        </FormCloseContainer>
+        {children}
+      </FormElement>
+    </FormContainer>
+  );
+};
