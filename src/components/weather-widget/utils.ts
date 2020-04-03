@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { cache } from "../../lib/cache";
 import icons from "./icons";
+import options from "../../store/options";
 
 const openWeatherMapApiKey = `6a3811c0c201a60032a60c243e832cf1`;
 
@@ -82,20 +83,22 @@ export const useWeather = (): [
 
   useEffect(() => {
     const load = async () => {
-      const { weather, forecast, location } = await getWeather();
+      if (options.showWeatherWidget) {
+        const { weather, forecast, location } = await getWeather();
 
-      setData({
-        loaded: true,
-        weather,
-        forecast,
-        location,
-      });
+        setData({
+          loaded: true,
+          weather,
+          forecast,
+          location,
+        });
+      }
     };
 
     if (data.loaded === false) {
       load();
     }
-  }, [data.loaded]);
+  }, [data.loaded, options.showWeatherWidget]);
 
   return [data.weather, data.forecast, data.location];
 };

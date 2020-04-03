@@ -2,7 +2,7 @@ import React from "react";
 import { observer } from "mobx-react";
 import options from "../../store/options";
 import bookmarks from "../../store/bookmarks/store";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 
 const Icon = styled.i`

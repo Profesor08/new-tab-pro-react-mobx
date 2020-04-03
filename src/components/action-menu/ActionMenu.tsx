@@ -1,5 +1,4 @@
-import React from "react";
-import styled, { css } from "styled-components";
+import styled, { css } from "styled-components/macro";
 
 interface IActionButtonProps {
   active?: boolean;
@@ -27,14 +26,14 @@ export const ActionButton = styled.div<IActionButtonProps>`
     cursor: pointer;
   }
 
-  ${props =>
+  ${(props) =>
     props.active
       ? css`
           background: #e0ebfd;
         `
       : null}
 
-  ${props =>
+  ${(props) =>
     props.disabled
       ? css`
           color: darken(#e0e0e0, 10%);

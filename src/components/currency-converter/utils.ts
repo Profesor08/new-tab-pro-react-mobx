@@ -2,6 +2,7 @@ import { cache } from "../../lib/cache";
 import { useState } from "react";
 import { useEffect } from "react";
 import store from "../../store/currency";
+import options from "../../store/options";
 
 export async function loadCurrencyData() {
   const date = new Date();
@@ -13,7 +14,9 @@ export async function loadCurrencyData() {
   const response = await fetch(
     "https://proxy.e-webdev.ru/?url=" +
       escape(
-        `https://www.bnm.md/ru/official_exchange_rates?get_xml=1&date=${day >= 10 ? day : `0${day}`}.${month >= 10 ? month : `0${month}`}.${year}`,
+        `https://www.bnm.md/ru/official_exchange_rates?get_xml=1&date=${
+          day >= 10 ? day : `0${day}`
+        }.${month >= 10 ? month : `0${month}`}.${year}`,
       ),
   );
 
@@ -32,7 +35,7 @@ export function parseCurrencyData(html: string): ICurrencyItem[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/xml");
 
-  return Array.from(doc.querySelectorAll("Valute")).map(valute => {
+  return Array.from(doc.querySelectorAll("Valute")).map((valute) => {
     const CharCode = text(valute.querySelector("CharCode"));
     const Nominal = text(valute.querySelector("Nominal"));
     const Value = text(valute.querySelector("Value"));
@@ -59,11 +62,11 @@ export async function getCurrencyData(): Promise<ICurrencyItem[]> {
     );
 
     return currencyData
-      .filter(currency => {
+      .filter((currency) => {
         return store.displayCurrencies.includes(currency.name);
       })
       .reduce((acc: ICurrencyItem[], currency) => {
-        const id = store.displayCurrencies.findIndex(name => {
+        const id = store.displayCurrencies.findIndex((name) => {
           return currency.name === name;
         });
 
@@ -87,16 +90,18 @@ export function useCurrencyData(): [ICurrencyItem[], boolean] {
 
   useEffect(() => {
     const load = async () => {
-      setData({
-        currencyData: await getCurrencyData(),
-        loaded: true,
-      });
+      if (options.showCurrencyWidget) {
+        setData({
+          currencyData: await getCurrencyData(),
+          loaded: true,
+        });
+      }
     };
 
     if (data.loaded === false) {
       load();
     }
-  }, [data.loaded]);
+  }, [data.loaded, options.showCurrencyWidget]);
 
   return [data.currencyData, data.loaded];
 }

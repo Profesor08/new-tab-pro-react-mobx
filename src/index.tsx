@@ -1,5 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./components/App";
+import options from "./store/options";
 
-ReactDOM.render(<App />, document.getElementById("root"));
+options.load(() => {
+  ReactDOM.render(<App />, document.getElementById("root"));
+});

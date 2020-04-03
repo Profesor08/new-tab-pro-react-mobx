@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import { IconButton } from "../buttons/IconButton";
 
 function dateFormat(timestamp: number): string {
@@ -104,7 +104,7 @@ export const BookmarkItem = ({ bookmark, onMenu }: IBookmarkItemProps) => (
       {dateFormat(bookmark.dateAdded)}, {timeFormat(bookmark.dateAdded)}
     </BookmarkTime>
     <BookmarkMenuButton
-      onClick={e => {
+      onClick={(e) => {
         if (onMenu) {
           onMenu(e.target, bookmark);
         }

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import styled, { css } from "styled-components";
+import styled, { css } from "styled-components/macro";
 import { observer } from "mobx-react";
 import { observable } from "mobx";
 import bookmarksStore from "../../store/bookmarks/store";
@@ -46,7 +46,7 @@ const BookmarkMenu = styled(ActionMenu).attrs((props: IBookmarkMenuProps) => ({
   transition: ease opacity 0.3s, ease right 0s, ease top 0.3s;
   outline: none;
 
-  ${props => {
+  ${(props) => {
     return props.active
       ? css`
           opacity: 1;

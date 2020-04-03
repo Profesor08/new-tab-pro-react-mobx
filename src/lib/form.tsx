@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styled, { css } from "styled-components";
+import styled, { css } from "styled-components/macro";
 import { theme, themeColorMixin } from "../theme/theme-default";
 import { CloseButton } from "../components/buttons/CloseButton";
 
@@ -25,7 +25,7 @@ const FormBackdrop = styled.div<IFormBackdropProps>`
   background-color: rgba(0, 0, 0, 0.5);
   transition: ease opacity ${theme.animationSpeed};
 
-  ${props =>
+  ${(props) =>
     props.active === false
       ? css`
           opacity: 0;
@@ -65,7 +65,7 @@ export const FormButton = styled.button<IFormButtonProps>`
   border: 0;
   background: transparent;
   padding: 6px 8px;
-  ${props => themeColorMixin(props)}
+  ${(props) => themeColorMixin(props)}
 
   &:hover {
     cursor: pointer;
@@ -124,15 +124,15 @@ const FormInputWrapper = styled.div<IFormInputProps>`
   overflow: auto;
 
   ${FormInputLabel} {
-    transform: ${p =>
+    transform: ${(p) =>
       p.active || p.hasText
         ? `translate(0, 1.5px) scale(0.75) translateZ(0)`
         : `translate(0, 18px) scale(1) translateZ(0)`};
-    color: ${p => (p.active ? `#1976d2` : `rgba(0, 0, 0, 0.54)`)};
+    color: ${(p) => (p.active ? `#1976d2` : `rgba(0, 0, 0, 0.54)`)};
   }
 
   ${FormInputText} {
-    border-color: ${p => (p.active ? `#1976d2` : `lightgrey`)};
+    border-color: ${(p) => (p.active ? `#1976d2` : `lightgrey`)};
   }
 
   ${FormInputText}:hover & {
@@ -165,7 +165,7 @@ export const FormTextField = ({
       <FormInputText
         onFocus={() => setActive(true)}
         onBlur={() => setActive(false)}
-        onChange={e => setHasText(e.target.value.length > 0)}
+        onChange={(e) => setHasText(e.target.value.length > 0)}
         value={value}
         {...attributes}
       />
@@ -200,7 +200,7 @@ const FormElement = styled.form<IFormElementProps>`
     "body body" auto
     "footer footer" auto / 1fr 50px;
 
-  ${props =>
+  ${(props) =>
     props.active === false
       ? css`
           opacity: 0;

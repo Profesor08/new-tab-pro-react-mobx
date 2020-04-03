@@ -4,7 +4,7 @@ import options from "./../../store/options";
 import sites from "../../store/sites";
 import editSite from "../../store/edit-site";
 import { EditSiteForm } from "./EditSiteForm";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 import { AddSiteForm } from "./AddSiteForm";
 import { AnimationPanel } from "../animation-panel/AnimationPanel";
@@ -29,8 +29,7 @@ const SitesList = styled(AnimationPanel)`
 `;
 
 const SiteName = styled.div`
-  padding: 3px 5px 3px 10px;
-  background: rgba(0, 0, 0, 0.15);
+  text-indent: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -43,7 +42,7 @@ const SiteName = styled.div`
   font-size: 14px;
 `;
 
-const SiteLink = styled.div`
+const SiteLink = styled.a`
   display: block;
   padding-top: 53%;
   flex: 1 0 100%;
@@ -63,7 +62,7 @@ const SiteImage = styled.div<ISiteImageProps>`
   height: 70%;
   transform: scale(1, 1) translate(-50%, -50%);
   background: no-repeat center center;
-  background-image: url(${p => p.src});
+  background-image: url(${(p) => p.src});
   background-size: contain;
   transform-origin: 0 0;
   transition: ease transform ${theme.animationSpeed};
@@ -94,10 +93,10 @@ const SiteButton = styled.div<ISiteButtonProps>`
   width: 16px;
   height: 16px;
   line-height: 1;
-  font-size: ${p => p.size}px;
+  font-size: ${(p) => p.size}px;
   color: grey;
   transition: ease color ${theme.animationSpeed};
-  display: ${p => (p.active ? "flex" : "none")};
+  display: ${(p) => (p.active ? "flex" : "none")};
   align-items: center;
   justify-content: center;
 `;
@@ -127,9 +126,11 @@ const RemoveSiteButton = styled(SiteButton).attrs({
 `;
 
 const SiteHeader = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 16px 16px;
   align-items: center;
-  padding: 0 5px 0 0;
+  grid-gap: 5px;
+  background: rgba(0, 0, 0, 0.15);
 
   ${SiteName} {
     flex: 1;
@@ -137,6 +138,8 @@ const SiteHeader = styled.div`
 `;
 
 const SiteItem = styled.div`
+  display: grid;
+  grid-template-rows: 22px 1fr;
   background-color: ${theme.siteBackgroundColor};
   border: 2px solid ${theme.siteBorderColor};
   border-radius: 5px;
@@ -181,6 +184,10 @@ const SiteIconItem = styled(SiteItem)`
 `;
 
 export const Sites = observer(() => {
+  if (options.showWebSites === false) {
+    return null;
+  }
+
   return (
     <React.Fragment>
       <SitesList>
@@ -202,11 +209,7 @@ export const Sites = observer(() => {
                 }}
               />
             </SiteHeader>
-            <SiteLink
-              onClick={() => {
-                document.location.href = site.url;
-              }}
-            >
+            <SiteLink href={site.url}>
               <SiteImage src={site.image} />
             </SiteLink>
           </SiteItem>

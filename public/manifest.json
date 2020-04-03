@@ -3,9 +3,9 @@
     "newtab": "index.html"
   },
   "icons": {
-    "128": "icon128.png",
     "16": "icon16.png",
-    "48": "icon48.png"
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "description": "Simple new tab",
   "manifest_version": 2,
@@ -30,8 +30,8 @@
     "https://www.maib.md/"
   ],
 
-  "version": "3.2.2",
-  "web_accessible_resources": ["index.html"],
+  "version": "4.0.3",
+  "web_accessible_resources": ["index.html", "icon128.png"],
 
   "browser_action": {
     "default_icon": "icon128.png"

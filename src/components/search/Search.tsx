@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import { CloseButton } from "../buttons/CloseButton";
 
 const InputOutline = styled.div`
@@ -67,7 +67,7 @@ export const SearchInput = styled(
       <InputWrapper className={className}>
         <Input
           value={value}
-          onChange={e => {
+          onChange={(e) => {
             setValue(e.target.value);
           }}
           {...props}

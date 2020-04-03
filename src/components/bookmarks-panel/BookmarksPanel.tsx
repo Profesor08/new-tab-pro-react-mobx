@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import { observer } from "mobx-react";
 import bookmarksStore from "../../store/bookmarks/store";
 import { Panel, PanelHeader, PanelBody, PanelContainer } from "../panel/Panel";
@@ -70,7 +70,7 @@ export const BookmarksPanel = observer(() => {
         <BookmarksSearch
           value={bookmarksStore.searchQuery}
           placeholder="Поиск"
-          onChange={value => {
+          onChange={(value) => {
             bookmarksStore.searchQuery = value;
           }}
         />

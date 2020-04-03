@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react";
-import styled from "styled-components";
-import store from "../../store/options";
+import styled from "styled-components/macro";
+import options from "../../store/options";
 import { useCurrencyData, selectInput } from "./utils";
 
 const List = styled.div`
@@ -72,11 +72,11 @@ const CurrencyItem = ({ currency }: { currency: ICurrencyItem }) => {
       <CurrencyName>{currency.name}</CurrencyName>
       <CurrencyNominal
         value={nominal}
-        onChange={e => {
+        onChange={(e) => {
           setNominal(e.target.value);
           setValue((Number(e.target.value) * rate).toFixed(2));
         }}
-        onBlur={e => {
+        onBlur={(e) => {
           if (e.target.value.length === 0) {
             setNominal(currency.nominal.toFixed(2));
             setValue(currency.value.toString());
@@ -86,12 +86,12 @@ const CurrencyItem = ({ currency }: { currency: ICurrencyItem }) => {
       />
       <CurrencyValue
         value={value}
-        onChange={e => {
+        onChange={(e) => {
           setValue(e.target.value);
           console.log(e.target.value);
           setNominal((Number(e.target.value) / rate).toFixed(2));
         }}
-        onBlur={e => {
+        onBlur={(e) => {
           if (e.target.value.length === 0) {
             setNominal(currency.nominal.toFixed(2));
             setValue(currency.value.toString());
@@ -107,7 +107,7 @@ const CurrencyItem = ({ currency }: { currency: ICurrencyItem }) => {
 export const CurrencyConverter = observer(() => {
   const [currencies, loaded] = useCurrencyData();
 
-  if (store.showCurrencyWidget) {
+  if (options.showCurrencyWidget && loaded) {
     return (
       <List>
         <ListHeader>

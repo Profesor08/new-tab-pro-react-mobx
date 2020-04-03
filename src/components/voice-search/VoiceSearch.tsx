@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled, { css, keyframes } from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 
 const pulse = keyframes`
@@ -46,7 +46,7 @@ const Button = styled.div<IButtonProps>`
   transition: ease border-color 0.2s, ease border-radius 0.2s;
   transform-origin: 50% 50%;
 
-  ${props => {
+  ${(props) => {
     if (props.active) {
       return css`
         border: 2px solid rgba(255, 255, 255, 1);
@@ -80,7 +80,7 @@ const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
     if (speechRecognition === null) {
       speechRecognition = new webkitSpeechRecognition();
 
-      speechRecognition.addEventListener("result", event => {
+      speechRecognition.addEventListener("result", (event) => {
         setRecording(false);
 
         window.open(
@@ -91,6 +91,7 @@ const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
 
       speechRecognition.addEventListener(
         "error",
+        // @ts-ignore
         (event: SpeechRecognitionError) => {
           if (event.error !== "no-speech") {
             console.warn("%cERROR: " + event.error, "color: #FF0000;");

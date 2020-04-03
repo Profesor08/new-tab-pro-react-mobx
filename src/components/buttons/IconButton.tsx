@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "styled-components/macro";
 
 export const IconButton = styled.button`
   flex: 0 0 32px;

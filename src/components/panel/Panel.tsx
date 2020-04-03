@@ -1,5 +1,5 @@
-import styled, { css } from "styled-components";
-import React, { useEffect, useRef } from "react";
+import styled, { css } from "styled-components/macro";
+import React from "react";
 import { theme } from "../../theme/theme-default";
 import { CloseButton } from "../buttons/CloseButton";
 
@@ -33,7 +33,7 @@ const PanelElement = styled.div.attrs({
     ease transform ${theme.animationSpeed}, ease left 0s;
   transition-delay: 0s, 0s, 0s;
 
-  ${p =>
+  ${(p) =>
     !p.active
       ? css`
           opacity: 0;
@@ -118,7 +118,7 @@ const PanelWrapper = styled.div<IPanelWrapperProps>`
   transition: transform ease 0s;
   transition-delay: 0s;
 
-  ${props =>
+  ${(props) =>
     props.active
       ? css`
           transform: translateX(0);
@@ -142,7 +142,7 @@ const PanelBackdrop = styled.div<IPanelBackdropProps>`
   background: rgba(0, 0, 0, 0.3);
   transition: ease opacity 0.3s;
 
-  ${props =>
+  ${(props) =>
     props.active
       ? css`
           opacity: 1;

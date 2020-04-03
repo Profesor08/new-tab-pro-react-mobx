@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
+import styled, { css } from "styled-components/macro";
 import {
   ActionMenu,
   ActionButton,
@@ -29,7 +29,7 @@ const SortMenuElement = styled.div.attrs({
     transition-delay: 0s, 0s, 0.3s;
   }
 
-  ${props =>
+  ${(props) =>
     props.active
       ? css`
           ${ActionMenu} {

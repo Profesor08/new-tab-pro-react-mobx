@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import options from "../../store/options";
 import { FlyingThroughSpace } from "./theme/FlyingThroughSpace/FlyingThroughSpace";
 import { observer } from "mobx-react";

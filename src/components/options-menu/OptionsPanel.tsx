@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import options from "../../store/options";
-import styled, { css } from "styled-components";
+import styled, { css } from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 
 interface IPanelProps {
@@ -23,7 +23,7 @@ const Panel = styled.div<IPanelProps>`
   transition: ease opacity 0.3s, ease transform 0.3s;
   outline: none;
 
-  ${p =>
+  ${(p) =>
     p.active
       ? css`
           transform: translate(50px, 0);
@@ -55,13 +55,13 @@ interface IIconProps {
 
 const Icon = styled.span<IIconProps>`
   display: block;
-  color: ${props => (props.active ? "green" : "grey")};
+  color: ${(props) => (props.active ? "green" : "grey")};
   font-size: 16px;
   line-height: 100%;
   transition: ease color ${theme.animationSpeed};
 
   &:before {
-    content: ${props => (props.active ? "'☑'" : "'☐'")};
+    content: ${(props) => (props.active ? "'☑'" : "'☐'")};
   }
 `;
 
