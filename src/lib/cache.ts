@@ -18,7 +18,7 @@ export function setCache(key: string, data: any, time: number) {
   try {
     setToStorage(key, cachedData);
   } catch (err) {
-    console.warn(err);
+    console.info(err);
   }
 }
 
@@ -34,7 +34,7 @@ export const cache = async (
       return data;
     }
   } catch (err) {
-    console.warn(err);
+    console.info(err);
   }
 
   let data = await callback();

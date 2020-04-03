@@ -19,15 +19,10 @@
     "storage",
     "bookmarks",
     "chrome://favicon/",
-    "history",
+    "https://proxy.e-webdev.ru/*",
     "https://www.bnm.md/*",
     "http://worldweatheronline.com/",
-    "http://sypexgeo.net/",
-    "http://ajax.googleapis.com/*",
-    "https://google.com/",
-    "http://127.0.0.1/",
-    "http://www.calend.ru/",
-    "https://www.maib.md/"
+    "http://sypexgeo.net/"
   ],
 
   "version": "4.0.3",

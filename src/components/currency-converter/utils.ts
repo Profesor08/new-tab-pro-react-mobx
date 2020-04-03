@@ -4,21 +4,25 @@ import { useEffect } from "react";
 import store from "../../store/currency";
 import options from "../../store/options";
 
+export const useProxy = (url: string) => {
+  if (chrome.extension === undefined) {
+    return `https://proxy.e-webdev.ru/?url=${escape(url)}`;
+  }
+
+  return url;
+};
+
 export async function loadCurrencyData() {
   const date = new Date();
 
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
+  const url = `https://www.bnm.md/ru/official_exchange_rates?get_xml=1&date=${
+    day >= 10 ? day : `0${day}`
+  }.${month >= 10 ? month : `0${month}`}.${year}`;
 
-  const response = await fetch(
-    "https://proxy.e-webdev.ru/?url=" +
-      escape(
-        `https://www.bnm.md/ru/official_exchange_rates?get_xml=1&date=${
-          day >= 10 ? day : `0${day}`
-        }.${month >= 10 ? month : `0${month}`}.${year}`,
-      ),
-  );
+  const response = await fetch(useProxy(url));
 
   return await response.text();
 }
@@ -77,7 +81,7 @@ export async function getCurrencyData(): Promise<ICurrencyItem[]> {
         return acc;
       }, new Array(store.displayCurrencies.length));
   } catch (err) {
-    console.warn(err);
+    console.info(err);
     return [];
   }
 }
