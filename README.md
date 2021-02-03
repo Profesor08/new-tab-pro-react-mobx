@@ -2,7 +2,7 @@
 
 New Tab Page for Google Chrome
 
-[DEMO](https://profesor08.github.io/New-Tab-Pro-React/)
+[DEMO](https://profesor08.github.io/new-tab-pro-react-mobx/)
 
 Features:
 
