@@ -1,9 +1,14 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "target": "es5",
-    "lib": ["es7", "dom", "webworker"],
-    "jsx": "preserve",
+    "target": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable",
+      "WebWorker"
+    ],
+    "jsx": "react",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -16,5 +21,4 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["src"]
 }
