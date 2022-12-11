@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { observer } from "mobx-react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components/macro";
 import options from "../../store/options";
-import { useCurrencyData, selectInput } from "./utils";
+import { RecoilRoot, useRecoilState } from "recoil";
+import { currencyConverterState } from "./currency-store";
+import { getCurrencyData } from "./utils";
 
 const List = styled.div`
   margin: 200px 20px 0 40px;
@@ -62,24 +63,43 @@ const CurrencyNominal = styled(CurrencyInput)``;
 
 const CurrencyRate = styled(TextItem)``;
 
-const CurrencyItem = ({ currency }: { currency: ICurrencyItem }) => {
-  const [nominal, setNominal] = useState(currency.nominal.toFixed(2));
-  const [value, setValue] = useState(currency.value.toFixed(2));
-  const rate = currency.value / currency.nominal;
+const CurrencyItem = ({
+  currency,
+  rate,
+}: {
+  currency: string;
+  rate: number;
+}) => {
+  const [nominal, setNominal] = useState((1).toFixed(2));
+  const [value, setValue] = useState((1 / rate).toFixed(2));
+  const [activeInput, setActiveInput] = useState<HTMLInputElement | null>(null);
+
+  const selectInput = useCallback(
+    (event: React.MouseEvent) => {
+      if (event.currentTarget instanceof HTMLInputElement) {
+        if (event.currentTarget.isSameNode(activeInput) === false) {
+          event.currentTarget.select();
+        }
+
+        setActiveInput(event.currentTarget);
+      }
+    },
+    [activeInput],
+  );
 
   return (
     <ListItem>
-      <CurrencyName>{currency.name}</CurrencyName>
+      <CurrencyName>{currency}</CurrencyName>
       <CurrencyNominal
         value={nominal}
         onChange={(e) => {
           setNominal(e.target.value);
-          setValue((Number(e.target.value) * rate).toFixed(2));
+          setValue((Number(e.target.value) / rate).toFixed(2));
         }}
         onBlur={(e) => {
           if (e.target.value.length === 0) {
-            setNominal(currency.nominal.toFixed(2));
-            setValue(currency.value.toString());
+            setNominal((1).toFixed(2));
+            setValue((1 / rate).toFixed(2));
           }
         }}
         onClick={selectInput}
@@ -88,42 +108,66 @@ const CurrencyItem = ({ currency }: { currency: ICurrencyItem }) => {
         value={value}
         onChange={(e) => {
           setValue(e.target.value);
-          console.log(e.target.value);
-          setNominal((Number(e.target.value) / rate).toFixed(2));
+          setNominal((Number(e.target.value) * rate).toFixed(2));
         }}
         onBlur={(e) => {
           if (e.target.value.length === 0) {
-            setNominal(currency.nominal.toFixed(2));
-            setValue(currency.value.toString());
+            setNominal((1).toFixed(2));
+            setValue((1 / rate).toFixed(2));
           }
         }}
         onClick={selectInput}
       />
-      <CurrencyRate>{currency.value}</CurrencyRate>
+      <CurrencyRate>{(1 / rate).toFixed(4)}</CurrencyRate>
     </ListItem>
   );
 };
 
-export const CurrencyConverter = observer(() => {
-  const [currencies, loaded] = useCurrencyData();
+const CurrencyConverterWidget = () => {
+  const [state] = useRecoilState(currencyConverterState);
 
-  if (options.showCurrencyWidget && loaded) {
+  if (state.loaded === true) {
+    const { base, success, rates } = state.data;
+
+    if (success === true) {
+      return (
+        <List>
+          <ListHeader>
+            <HeaderCurrency>Currency</HeaderCurrency>
+            <HeaderCurrencyDefault>{base}</HeaderCurrencyDefault>
+            <HeaderCurrencyRate>Rate</HeaderCurrencyRate>
+          </ListHeader>
+
+          {Object.entries(rates).map(([currency, rate]) => (
+            <CurrencyItem
+              key={`currency-item-${currency}`}
+              currency={currency}
+              rate={rate}
+            />
+          ))}
+        </List>
+      );
+    }
+  }
+
+  return null;
+};
+
+export const CurrencyConverter = () => {
+  if (options.showCurrencyWidget === true) {
     return (
-      <List>
-        <ListHeader>
-          <HeaderCurrency>Currency</HeaderCurrency>
-          <HeaderCurrencyDefault>MDL</HeaderCurrencyDefault>
-          <HeaderCurrencyRate>Rate</HeaderCurrencyRate>
-        </ListHeader>
-
-        {currencies.map((currency, id) => {
-          return (
-            <CurrencyItem key={`currency-item-${id}`} currency={currency} />
-          );
-        })}
-      </List>
+      <RecoilRoot
+        initializeState={async ({ set }) => {
+          set(currencyConverterState, {
+            loaded: true,
+            data: await getCurrencyData(),
+          });
+        }}
+      >
+        <CurrencyConverterWidget />
+      </RecoilRoot>
     );
   }
 
   return null;
-});
+};
