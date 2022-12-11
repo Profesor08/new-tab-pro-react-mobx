@@ -84,14 +84,14 @@ export const WeatherWidget = observer(() => {
     forecast !== null &&
     location !== null
   ) {
-    let forecastList = forecast.list
+    const forecastList = forecast.list
       .filter(weather => {
-        let arr = weather.dt_txt.split(/\s+/);
+        const arr = weather.dt_txt.split(/\s+/);
 
         return arr[1] === "00:00:00";
       })
       .map(weather => {
-        let day = new Date(weather.dt * 1000).toLocaleDateString(
+        const day = new Date(weather.dt * 1000).toLocaleDateString(
           window.navigator.language,
           {
             weekday: "short",

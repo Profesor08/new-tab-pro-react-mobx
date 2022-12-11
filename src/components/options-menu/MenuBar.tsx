@@ -4,6 +4,7 @@ import options from "../../store/options";
 import bookmarks from "../../store/bookmarks/store";
 import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
+import { runInAction } from "mobx";
 
 const Icon = styled.i`
   font-style: normal;
@@ -49,7 +50,7 @@ const MenuContainer = styled.div`
   z-index: 100;
 `;
 
-export const MenuBar = observer(() => {
+export const MenuBar = () => {
   return (
     <MenuContainer>
       <MenuButton
@@ -61,11 +62,13 @@ export const MenuBar = observer(() => {
       </MenuButton>
       <MenuButton
         onClick={() => {
-          bookmarks.bookmarksPanelShow = true;
+          runInAction(() => {
+            bookmarks.bookmarksPanelShow = true;
+          });
         }}
       >
         <Icon>★</Icon>
       </MenuButton>
     </MenuContainer>
   );
-});
+};

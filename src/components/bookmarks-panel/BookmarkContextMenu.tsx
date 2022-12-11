@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import styled, { css } from "styled-components/macro";
 import { observer } from "mobx-react";
-import { observable } from "mobx";
+import { makeAutoObservable, observable } from "mobx";
 import bookmarksStore from "../../store/bookmarks/store";
 import {
   ActionMenu,
@@ -18,14 +18,28 @@ interface IBookmarkMenuStore {
   needsUpdate: boolean;
 }
 
-const store: IBookmarkMenuStore = observable({
-  x: 0,
-  y: 0,
-  active: false,
-  bookmark: null,
-  target: null,
-  needsUpdate: false,
-});
+class BookmarkMenuStore implements IBookmarkMenuStore {
+  public x = 0;
+  public _y = 0;
+  public active = false;
+  public bookmark = null;
+  public target = null;
+  public needsUpdate = false;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  get y() {
+    return this._y;
+  }
+
+  set y(value) {
+    this._y = value;
+  }
+}
+
+const store: IBookmarkMenuStore = new BookmarkMenuStore();
 
 interface IBookmarkMenuProps {
   active?: boolean;
@@ -66,7 +80,7 @@ interface IBookmarkContextMenuProps {
   parent: React.MutableRefObject<null | HTMLDivElement>;
 }
 
-export const useBookmarkMenu = () => {
+export const createBookmarkMenu = () => {
   return {
     open: (target: EventTarget, bookmark: BookmarkTreeNode) => {
       store.target = target;

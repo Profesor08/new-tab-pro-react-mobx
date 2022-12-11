@@ -1,27 +1,31 @@
-import { observable, computed } from "mobx";
+import { observable, computed, makeAutoObservable } from "mobx";
 import { Sort, bookmarksFilter, saveToStorage } from "./utils";
 import { Bookmarks } from "./Bookmarks";
 
 export { Sort };
 
 class BookmarksStore {
-  @observable private _bookmarks: BookmarkTreeNode[] = [];
-  @observable private _sortOrder: SortOrder = {
+  private _bookmarks: BookmarkTreeNode[] = [];
+  private _sortOrder: SortOrder = {
     type: "ORDER_BY_DATE",
     direction: "ORDER_DIRECTION_DESCENDING",
   };
-  @observable public bookmarksPanelShow: boolean = false;
-  @observable public searchQuery: string = "";
-  @observable public editingBookmark: BookmarkTreeNode | null = null;
+  public bookmarksPanelShow: boolean = false;
+  private _searchQuery: string = "";
+  public editingBookmark: BookmarkTreeNode | null = null;
 
-  private bookmarksWorker = new Bookmarks(bookmarks => {
+  private bookmarksWorker = new Bookmarks((bookmarks) => {
     this._bookmarks = bookmarks;
   });
 
-  @computed get bookmarks(): BookmarkTreeNode[] {
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  get bookmarks(): BookmarkTreeNode[] {
     return bookmarksFilter(
       this._bookmarks,
-      this.searchQuery,
+      this._searchQuery,
       this._sortOrder.type,
       this._sortOrder.direction,
     );
@@ -31,13 +35,21 @@ class BookmarksStore {
     this._bookmarks = bookmarks;
   }
 
-  @computed get sortOrder() {
+  get sortOrder() {
     return this._sortOrder;
   }
 
   set sortOrder(sortOrder) {
     this._sortOrder = sortOrder;
     saveToStorage("bookmarksSortOrder", sortOrder);
+  }
+
+  get searchQuery() {
+    return this._searchQuery;
+  }
+
+  set searchQuery(value) {
+    this._searchQuery = value;
   }
 
   async removeBookmark(bookmark: BookmarkTreeNode) {

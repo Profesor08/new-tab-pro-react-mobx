@@ -84,6 +84,7 @@ const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
         setRecording(false);
 
         window.open(
+          // @ts-ignore
           "http://google.ru/search?q=" + event.results[0][0].transcript,
           "",
         );

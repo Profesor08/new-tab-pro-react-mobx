@@ -7,7 +7,7 @@ function dateFormat(timestamp: number): string {
 }
 
 function timeFormat(timestamp: number): string {
-  let time = new Date(timestamp).toLocaleString().substr(12);
+  const time = new Date(timestamp).toLocaleString().substr(12);
 
   if (time.length < 8) {
     return "0" + time;

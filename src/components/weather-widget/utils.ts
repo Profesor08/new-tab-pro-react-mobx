@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { cache } from "../../lib/cache";
 import icons from "./icons";
 import options from "../../store/options";
+import { getCountryByCode } from "./countries";
 
 const openWeatherMapApiKey = `6a3811c0c201a60032a60c243e832cf1`;
 
@@ -19,22 +20,17 @@ const makeRequest = async (
 };
 
 export const getGeoLocation = async (): Promise<IGeoLocation> => {
-  const response = await makeRequest("https://api.sypexgeo.net/json/");
-  const { city, country } = await response.json();
-
-  const language = navigator.language.substr(0, 2);
-
   return {
-    latitude: city.lat,
-    longitude: city.lon,
-    city: city["name_" + language] || city["name_en"],
-    country: country["name_" + language] || country["name_en"],
+    latitude: 46.9982,
+    longitude: 28.8095,
+    city: "Кишинёв",
+    country: "Молдова",
   };
 };
 
 export const getWeather = async () => {
   return cache("weatherData", async () => {
-    const language = navigator.language.substr(0, 2);
+    const language = navigator.language.substring(0, 2);
 
     const location: IGeoLocation = await getGeoLocation();
 
@@ -74,7 +70,12 @@ export const useWeather = (): [
   IForecastData | null,
   IGeoLocation | null,
 ] => {
-  const [data, setData] = useState({
+  const [data, setData] = useState<{
+    loaded: boolean;
+    weather: null;
+    forecast: null;
+    location: IGeoLocation | null;
+  }>({
     loaded: false,
     weather: null,
     forecast: null,
@@ -98,14 +99,14 @@ export const useWeather = (): [
     if (data.loaded === false) {
       load();
     }
-  }, [data.loaded, options.showWeatherWidget]);
+  }, [data.loaded]);
 
   return [data.weather, data.forecast, data.location];
 };
 
 export const getWeatherIcon = (icon: string) => {
   try {
-    icon = icon.substr(0, 2);
+    icon = icon.substring(0, 2);
   } catch (err) {
     return icons.sunny;
   }
