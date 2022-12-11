@@ -25,7 +25,7 @@
     "http://sypexgeo.net/"
   ],
 
-  "version": "4.0.3",
+  "version": "4.0.4",
   "web_accessible_resources": ["index.html", "icon128.png"],
 
   "browser_action": {
