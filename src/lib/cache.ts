@@ -1,16 +1,16 @@
 import { getFromStorage, setToStorage } from "./storage";
 
-interface CacheObject {
-  data: any;
+interface CacheObject<T> {
+  data: T;
   expire: number;
 }
 
-export const getCache = async (key: string): Promise<CacheObject> => {
-  return await getFromStorage<CacheObject>(key);
+export const getCache = async <T>(key: string): Promise<CacheObject<T>> => {
+  return await getFromStorage<CacheObject<T>>(key);
 };
 
-export function setCache(key: string, data: any, time: number) {
-  const cachedData: CacheObject = {
+export function setCache<T>(key: string, data: T, time: number) {
+  const cachedData: CacheObject<T> = {
     data: data,
     expire: Date.now() + time,
   };
@@ -22,13 +22,13 @@ export function setCache(key: string, data: any, time: number) {
   }
 }
 
-export const cache = async (
+export const cache = async <T>(
   key: string,
-  callback: () => any,
+  callback: () => T,
   time = 300000,
-): Promise<any> => {
+): Promise<T> => {
   try {
-    let { data, expire } = await getCache(key);
+    const { data, expire } = await getCache<T>(key);
 
     if (expire > Date.now()) {
       return data;
@@ -37,7 +37,7 @@ export const cache = async (
     console.info(err);
   }
 
-  let data = await callback();
+  const data = await callback();
 
   setCache(key, data, time);
 
