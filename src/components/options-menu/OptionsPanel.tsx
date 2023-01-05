@@ -1,6 +1,5 @@
-import React, { useRef, useEffect, useState } from "react";
-import { observer } from "mobx-react";
-import options from "../../store/options";
+import React, { useRef, useEffect, useCallback } from "react";
+import { useControls, useOptions } from "../../store/options";
 import styled, { css } from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 
@@ -84,69 +83,87 @@ const OptionsButton = ({
   );
 };
 
-export const OptionsPanel = observer(() => {
+export const OptionsPanel = () => {
   const ref: React.MutableRefObject<null | HTMLDivElement> = useRef(null);
-  const [active, setActive] = useState(options.optionsPanelShow);
+  const showOptionsPanel = useControls((state) => state.showOptionsPanel);
+  const toggleOptionsPanel = useControls((state) => state.toggleOptionsPanel);
+  const {
+    showWeatherWidget,
+    showCurrencyWidget,
+    showWebSites,
+    backgroundStarSpaceAnimation,
+    additionalOptions,
+    toggleWeatherWidget,
+    toggleCurrencyWidget,
+    toggleWebSites,
+    toggleBackgroundStarSpaceAnimation,
+    toggleAdditionalOptions,
+  } = useOptions();
+
+  const onPanelBlur = useCallback(() => {
+    toggleOptionsPanel(false);
+  }, [toggleOptionsPanel]);
 
   useEffect(() => {
-    setActive(options.optionsPanelShow);
-  }, [options.optionsPanelShow]);
-
-  useEffect(() => {
-    if (active && ref.current !== null) {
+    if (showOptionsPanel === true && ref.current !== null) {
       ref.current.focus();
     }
-  }, [ref.current, active]);
+  }, [showOptionsPanel]);
+
+  const onShowWeatherOptionClick = useCallback(() => {
+    toggleWeatherWidget();
+  }, [toggleWeatherWidget]);
+
+  const onShowCurrencyOptionClick = useCallback(() => {
+    toggleCurrencyWidget();
+  }, [toggleCurrencyWidget]);
+
+  const onShowSitesOptionClick = useCallback(() => {
+    toggleWebSites();
+  }, [toggleWebSites]);
+
+  const onBackgroundStarSpaceOptionClick = useCallback(() => {
+    toggleBackgroundStarSpaceAnimation();
+  }, [toggleBackgroundStarSpaceAnimation]);
+
+  const onAdditionalOptionsOptionClick = useCallback(() => {
+    toggleAdditionalOptions();
+  }, [toggleAdditionalOptions]);
 
   return (
     <Panel
       ref={ref}
-      active={active}
+      active={showOptionsPanel === true}
       tabIndex={-1}
-      onBlur={() => {
-        options.optionsPanelShow = false;
-      }}
+      onBlur={onPanelBlur}
     >
       <OptionsButton
-        active={options.showWeatherWidget}
-        onClick={() => {
-          options.showWeatherWidget = !options.showWeatherWidget;
-        }}
+        active={showWeatherWidget}
+        onClick={onShowWeatherOptionClick}
       >
         Show weather
       </OptionsButton>
       <OptionsButton
-        active={options.showCurrencyWidget}
-        onClick={() => {
-          options.showCurrencyWidget = !options.showCurrencyWidget;
-        }}
+        active={showCurrencyWidget}
+        onClick={onShowCurrencyOptionClick}
       >
         Show currency
       </OptionsButton>
-      <OptionsButton
-        active={options.showWebSites}
-        onClick={() => {
-          options.showWebSites = !options.showWebSites;
-        }}
-      >
+      <OptionsButton active={showWebSites} onClick={onShowSitesOptionClick}>
         Show sites
       </OptionsButton>
       <OptionsButton
-        active={options.backgroundStarSpaceAnimation}
-        onClick={() => {
-          options.backgroundStarSpaceAnimation = !options.backgroundStarSpaceAnimation;
-        }}
+        active={backgroundStarSpaceAnimation}
+        onClick={onBackgroundStarSpaceOptionClick}
       >
         Background Star Space
       </OptionsButton>
       <OptionsButton
-        active={options.additionalOptions}
-        onClick={() => {
-          options.additionalOptions = !options.additionalOptions;
-        }}
+        active={additionalOptions}
+        onClick={onAdditionalOptionsOptionClick}
       >
         Additional Options
       </OptionsButton>
     </Panel>
   );
-});
+};

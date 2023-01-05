@@ -1,10 +1,7 @@
-import React from "react";
-import { observer } from "mobx-react";
-import options from "../../store/options";
-import bookmarks from "../../store/bookmarks/store";
+import React, { useCallback } from "react";
+import { useControls } from "../../store/options";
 import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
-import { runInAction } from "mobx";
 
 const Icon = styled.i`
   font-style: normal;
@@ -51,22 +48,23 @@ const MenuContainer = styled.div`
 `;
 
 export const MenuBar = () => {
+  const toggleOptionsPanel = useControls((state) => state.toggleOptionsPanel);
+  const toggleAddSiteForm = useControls((state) => state.toggleAddSiteForm);
+
+  const onOptionsButtonClick = useCallback(() => {
+    toggleOptionsPanel();
+  }, [toggleOptionsPanel]);
+
+  const onAddSiteFormButtonClick = useCallback(() => {
+    toggleAddSiteForm();
+  }, [toggleAddSiteForm]);
+
   return (
     <MenuContainer>
-      <MenuButton
-        onClick={() => {
-          options.optionsPanelShow = true;
-        }}
-      >
+      <MenuButton onClick={onOptionsButtonClick}>
         <Icon>☰</Icon>
       </MenuButton>
-      <MenuButton
-        onClick={() => {
-          runInAction(() => {
-            bookmarks.bookmarksPanelShow = true;
-          });
-        }}
-      >
+      <MenuButton onClick={onAddSiteFormButtonClick}>
         <Icon>★</Icon>
       </MenuButton>
     </MenuContainer>
