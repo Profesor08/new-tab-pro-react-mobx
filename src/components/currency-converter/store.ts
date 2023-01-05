@@ -1,4 +1,7 @@
-import { cache } from "../../lib/cache";
+import { QueryClient, useQuery } from "react-query";
+import { createAsyncStoragePersistor } from "react-query/createAsyncStoragePersistor-experimental";
+import { persistQueryClient } from "react-query/persistQueryClient-experimental";
+import { CommonStorageProvider } from "../../lib/storage/providers/CommonStorageProvider";
 import type { ICurrencyList, ICurrencyResponse } from "./types";
 
 export const currencyList: Record<ICurrencyList, string> = {
@@ -174,7 +177,7 @@ export const currencyList: Record<ICurrencyList, string> = {
   ZWL: "Zimbabwean Dollar",
 };
 
-export const getApiData = async (): Promise<ICurrencyResponse> => {
+const getCurrencyData = async (): Promise<ICurrencyResponse> => {
   const headers = new Headers();
 
   headers.append("apikey", "OiabkOaxFsGcrWxrPozPPZSuLroot7Fc");
@@ -193,12 +196,25 @@ export const getApiData = async (): Promise<ICurrencyResponse> => {
   return await response.json();
 };
 
-export const getCurrencyData = async () => {
-  return await cache(
-    "currencyData",
-    async () => {
-      return await getApiData();
-    },
-    86400 * 1000, // 86400
-  );
+export const useCurrencyData = () => {
+  return useQuery("currencyData", async () => await getCurrencyData());
 };
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    },
+  },
+});
+
+const asyncStoragePersistor = createAsyncStoragePersistor({
+  storage: new CommonStorageProvider(),
+});
+
+persistQueryClient({
+  queryClient,
+  persistor: asyncStoragePersistor,
+});
