@@ -5,7 +5,7 @@ import { QueryClientProvider } from "react-query";
 import { CurrencyConverterWidget } from "./components/CurrencyConverterWidget";
 
 export const CurrencyConverter = () => {
-  const showCurrencyWidget = useOptions((state) => state.showCurrencyWidget);
+  const showCurrencyWidget = useOptions((state) => state.currency);
 
   if (showCurrencyWidget === true) {
     return (

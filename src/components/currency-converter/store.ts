@@ -206,6 +206,7 @@ export const queryClient = new QueryClient({
       cacheTime: 1000 * 60 * 60 * 24, // 24 hours
       refetchOnWindowFocus: false,
       refetchOnMount: false,
+      refetchOnReconnect: false,
     },
   },
 });
