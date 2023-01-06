@@ -1,5 +1,4 @@
-import React, { useState, useCallback } from "react";
-import styled from "styled-components/macro";
+import React, { useCallback } from "react";
 import {
   removeBookmark,
   useEditingBookmarkStore,
@@ -9,10 +8,6 @@ import {
   ActionButton,
   ActionDivider,
 } from "../action-menu/ActionMenu";
-
-const BookmarkMenu = styled(ActionMenu)`
-  display: grid;
-`;
 
 export const BookmarkContextMenu: React.FC<{
   bookmark: BookmarkTreeNode;
@@ -83,7 +78,7 @@ export const BookmarkContextMenu: React.FC<{
   }, [close, setBookmark]);
 
   return (
-    <BookmarkMenu>
+    <ActionMenu>
       <ActionButton onClick={onEditClick}>Edit Bookmark</ActionButton>
       <ActionButton onClick={onCopyUrlClick}>Copy Bookmark URL</ActionButton>
       <ActionButton onClick={onDeleteClick}>Delete Bookmark</ActionButton>
@@ -97,6 +92,6 @@ export const BookmarkContextMenu: React.FC<{
       </ActionButton>
       <ActionDivider />
       <ActionButton onClick={onCloseClick}>Close</ActionButton>
-    </BookmarkMenu>
+    </ActionMenu>
   );
 };
