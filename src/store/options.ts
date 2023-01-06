@@ -93,13 +93,6 @@ export const store = new OptionsStore();
 
 export default store;
 
-interface IOptionsPanelState {
-  readonly optionsPanel: boolean;
-  readonly openOptionsPanel: () => void;
-  readonly closeOptionsPanel: () => void;
-  readonly toggleOptionsPanel: () => void;
-}
-
 interface IAddSiteState {
   readonly addSite: boolean;
   readonly openAddSite: () => void;
@@ -114,15 +107,7 @@ interface IBookmarksState {
   readonly toggleBookmarks: () => void;
 }
 
-export const useControls = create<
-  IOptionsPanelState & IAddSiteState & IBookmarksState
->((set) => ({
-  optionsPanel: false,
-  openOptionsPanel: () => set({ optionsPanel: true }),
-  closeOptionsPanel: () => set({ optionsPanel: false }),
-  toggleOptionsPanel: () =>
-    set((state) => ({ optionsPanel: !state.optionsPanel })),
-
+export const useControls = create<IAddSiteState & IBookmarksState>((set) => ({
   bookmarks: false,
   openBookmarks: () => set({ bookmarks: true }),
   closeBookmarks: () => set({ bookmarks: false }),

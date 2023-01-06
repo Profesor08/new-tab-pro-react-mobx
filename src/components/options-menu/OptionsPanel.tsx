@@ -1,52 +1,12 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { useControls, useOptions } from "../../store/options";
-import styled, { css } from "styled-components/macro";
+import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
-
-interface IPanelProps {
-  active?: boolean;
-}
-
-const Panel = styled.div<IPanelProps>`
-  position: fixed;
-  top: 10px;
-  left: 0;
-  transform: translate(-100%, 0);
-  opacity: 0;
-  background-color: ${theme.optionsPanelBackground};
-  border: 2px solid ${theme.optionsPanelBorderColor};
-  color: ${theme.optionsPanelColor};
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  transition: ease opacity 0.3s, ease transform 0.3s;
-  outline: none;
-  user-select: none;
-
-  ${(p) =>
-    p.active
-      ? css`
-          transform: translate(50px, 0);
-          opacity: 1;
-        `
-      : null}
-`;
+import { ActionButton, ActionMenu } from "../action-menu/ActionMenu";
 
 const ButtonText = styled.div`
   transition: ease padding ${theme.animationSpeed};
   padding: 0 30px 0 0;
-`;
-
-const Button = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2px 5px;
-  border-top: 1px solid #434343;
-  font-size: 0.8rem;
-  background-color: transparent;
-  transition: ease background-color ${theme.animationSpeed};
-  white-space: nowrap;
 `;
 
 interface IIconProps {
@@ -65,6 +25,23 @@ const Icon = styled.span<IIconProps>`
   }
 `;
 
+const OptionsPanelMenu = styled(ActionMenu)`
+  background-color: ${theme.menuBarBackgroundColor};
+  border: 2px solid ${theme.menuBarHoverBorderColor};
+  box-shadow: 0 2px 6px ${theme.menuBarBorderColor};
+`;
+
+const OptionsPanelButton = styled(ActionButton)`
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  color: ${theme.menuBarButtonColor};
+
+  &:hover {
+    background-color: ${theme.menuBarHoverBackgroundColor};
+    cursor: pointer;
+  }
+`;
+
 interface IOptionsButtonProps {
   active?: boolean;
   children?: React.ReactChild;
@@ -77,17 +54,14 @@ const OptionsButton = ({
   onClick,
 }: IOptionsButtonProps) => {
   return (
-    <Button onClick={onClick}>
+    <OptionsPanelButton onClick={onClick}>
       <ButtonText>{children}</ButtonText>
       <Icon active={active} />
-    </Button>
+    </OptionsPanelButton>
   );
 };
 
 export const OptionsPanel = () => {
-  const ref: React.MutableRefObject<null | HTMLDivElement> = useRef(null);
-  const optionsPanel = useControls((state) => state.optionsPanel);
-  const closeOptionsPanel = useControls((state) => state.closeOptionsPanel);
   const weather = useOptions((state) => state.weather);
   const toggleWeather = useOptions((state) => state.toggleWeather);
   const currency = useOptions((state) => state.currency);
@@ -99,19 +73,8 @@ export const OptionsPanel = () => {
   const controls = useOptions((state) => state.controls);
   const toggleControls = useOptions((state) => state.toggleControls);
 
-  useEffect(() => {
-    if (optionsPanel === true && ref.current !== null) {
-      ref.current.focus();
-    }
-  }, [optionsPanel]);
-
   return (
-    <Panel
-      ref={ref}
-      active={optionsPanel === true}
-      tabIndex={-1}
-      onBlur={closeOptionsPanel}
-    >
+    <OptionsPanelMenu>
       <OptionsButton active={weather} onClick={toggleWeather}>
         Show weather
       </OptionsButton>
@@ -127,6 +90,6 @@ export const OptionsPanel = () => {
       <OptionsButton active={controls} onClick={toggleControls}>
         Additional Options
       </OptionsButton>
-    </Panel>
+    </OptionsPanelMenu>
   );
 };

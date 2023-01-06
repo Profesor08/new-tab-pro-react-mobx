@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components/macro";
-import { MenuBar, OptionsPanel } from "./options-menu";
+import { MenuBar } from "./options-menu";
 import { WeatherWidget } from "./weather-widget/Weather";
 import { CurrencyConverter } from "./currency-converter/CurrencyConverter";
 import { VoiceSearch } from "./voice-search/VoiceSearch";
@@ -72,7 +72,6 @@ export const App = () => {
         </MainLayout>
       </AppContainer>
       <MenuBar />
-      <OptionsPanel />
       <WeatherWidget />
       <BookmarksPanel />
     </React.Fragment>

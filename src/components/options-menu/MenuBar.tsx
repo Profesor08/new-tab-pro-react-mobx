@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 import { useControls } from "../../store/options";
+import { Tooltip } from "../tooltip/Tooltip";
+import { OptionsPanel } from "./OptionsPanel";
 
 const Icon = styled.i`
   font-style: normal;
@@ -48,14 +50,23 @@ const MenuContainer = styled.div`
 `;
 
 export const MenuBar = () => {
-  const openOptionsPanel = useControls((state) => state.openOptionsPanel);
   const openBookmarks = useControls((state) => state.openBookmarks);
 
   return (
     <MenuContainer>
-      <MenuButton onClick={openOptionsPanel}>
-        <Icon>☰</Icon>
-      </MenuButton>
+      <Tooltip
+        behavior="click"
+        floatingProps={{
+          placement: "right-start",
+        }}
+        toggle={({ reference, referenceProps, ...props }) => (
+          <MenuButton ref={reference} {...referenceProps} {...props}>
+            <Icon>☰</Icon>
+          </MenuButton>
+        )}
+        content={() => <OptionsPanel />}
+      />
+
       <MenuButton onClick={openBookmarks}>
         <Icon>★</Icon>
       </MenuButton>
