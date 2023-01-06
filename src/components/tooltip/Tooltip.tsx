@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { HTMLMotionProps, motion } from "framer-motion";
+import { AnimatePresence, HTMLMotionProps, motion } from "framer-motion";
 import {
   autoUpdate,
   flip,
@@ -56,7 +56,7 @@ interface ITooltipFloatingProps {
 interface ITooltip {
   toggle: (props: ITooltipRefferenceProps) => React.ReactElement;
   content?: (props: ITooltipFloatingProps) => React.ReactElement;
-  floatingProps?: Pick<UseFloatingProps, "open" | "placement">;
+  floatingProps?: Partial<Pick<UseFloatingProps, "open" | "placement">>;
   behavior?: "hover" | "click";
   onOpen?: () => void;
 }
@@ -89,10 +89,57 @@ export const Tooltip = styled<Styled<ITooltip>>(
       useDismiss(context, { enabled: behavior === "click" }),
     ]);
 
-    const direction = placement === "top" ? -1 : 1;
+    const direction = useMemo(() => {
+      switch (placement) {
+        case "top":
+        case "top-start":
+        case "top-end":
+          return -1;
+        case "bottom":
+        case "bottom-start":
+        case "bottom-end":
+          return 1;
+        case "left":
+        case "left-start":
+        case "left-end":
+          return -1;
+        case "right":
+        case "right-start":
+        case "right-end":
+          return 1;
+      }
+    }, [placement]);
+
+    const xAxis =
+      placement.includes("left") || placement.includes("right") ? 1 : 0;
+    const yAxis =
+      placement.includes("top") || placement.includes("bottom") ? 1 : 0;
 
     const animation = {
-      y: -10 * direction,
+      x: -10 * direction * xAxis,
+      y: -10 * direction * yAxis,
+    };
+
+    const style = {
+      position: strategy,
+      top: y ?? 0,
+      left: x ?? 0,
+    };
+
+    const animate = {
+      opacity: [0, 1],
+      x: [animation.x, 0],
+      y: [animation.y, 0],
+    };
+
+    const exit = {
+      opacity: 0,
+      x: animation.x * 1,
+      y: animation.y * 1,
+    };
+
+    const transition = {
+      duration: 0.2,
     };
 
     useEffect(() => {
@@ -117,21 +164,20 @@ export const Tooltip = styled<Styled<ITooltip>>(
           referenceProps: getReferenceProps(),
         })}
         <FloatingPortal root={document.body}>
-          {open === true && content !== undefined && (
-            <TooltipContainer
-              ref={floating}
-              style={{
-                position: strategy,
-                top: y ?? 0,
-                left: x ?? 0,
-              }}
-              animate={{ opacity: [0, 1], y: [animation.y, 0] }}
-              transition={{ duration: 0.2 }}
-              {...getFloatingProps()}
-            >
-              {content({ open, setOpen })}
-            </TooltipContainer>
-          )}
+          <AnimatePresence>
+            {open === true && content !== undefined && (
+              <TooltipContainer
+                ref={floating}
+                style={style}
+                animate={animate}
+                exit={exit}
+                transition={transition}
+                {...getFloatingProps()}
+              >
+                {content({ open, setOpen })}
+              </TooltipContainer>
+            )}
+          </AnimatePresence>
         </FloatingPortal>
       </>
     );
