@@ -1,4 +1,6 @@
 {
+  "manifest_version": 3,
+  "version": "5.0.0",
   "chrome_url_overrides": {
     "newtab": "index.html"
   },
@@ -8,27 +10,31 @@
     "128": "icon128.png"
   },
   "description": "Simple new tab",
-  "manifest_version": 2,
   "minimum_chrome_version": "0",
   "name": "New Tab Pro",
   "offline_enabled": true,
-
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
-
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
   "permissions": [
+    "tabs",
     "storage",
     "bookmarks",
-    "chrome://favicon/",
-    "https://proxy.e-webdev.ru/*",
-    "https://www.bnm.md/*",
-    "http://worldweatheronline.com/",
-    "http://sypexgeo.net/"
+    "favicon"
   ],
-
-  "version": "4.0.4",
-  "web_accessible_resources": ["index.html", "icon128.png"],
-
-  "browser_action": {
+  "host_permissions": [],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "index.html",
+        "icon128.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "action": {
     "default_icon": "icon128.png"
   }
 }
