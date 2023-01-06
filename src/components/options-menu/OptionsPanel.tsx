@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect } from "react";
 import { useControls, useOptions } from "../../store/options";
 import styled, { css } from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
@@ -21,6 +21,7 @@ const Panel = styled.div<IPanelProps>`
   flex-direction: column;
   transition: ease opacity 0.3s, ease transform 0.3s;
   outline: none;
+  user-select: none;
 
   ${(p) =>
     p.active
@@ -85,83 +86,45 @@ const OptionsButton = ({
 
 export const OptionsPanel = () => {
   const ref: React.MutableRefObject<null | HTMLDivElement> = useRef(null);
-  const showOptionsPanel = useControls((state) => state.showOptionsPanel);
-  const toggleOptionsPanel = useControls((state) => state.toggleOptionsPanel);
-  const {
-    showWeatherWidget,
-    showCurrencyWidget,
-    showWebSites,
-    backgroundStarSpaceAnimation,
-    additionalOptions,
-    toggleWeatherWidget,
-    toggleCurrencyWidget,
-    toggleWebSites,
-    toggleBackgroundStarSpaceAnimation,
-    toggleAdditionalOptions,
-  } = useOptions();
-
-  const onPanelBlur = useCallback(() => {
-    toggleOptionsPanel(false);
-  }, [toggleOptionsPanel]);
+  const optionsPanel = useControls((state) => state.optionsPanel);
+  const closeOptionsPanel = useControls((state) => state.closeOptionsPanel);
+  const weather = useOptions((state) => state.weather);
+  const toggleWeather = useOptions((state) => state.toggleWeather);
+  const currency = useOptions((state) => state.currency);
+  const toggleCurrency = useOptions((state) => state.toggleCurrency);
+  const sites = useOptions((state) => state.sites);
+  const toggleSites = useOptions((state) => state.toggleSites);
+  const starSpace = useOptions((state) => state.starSpace);
+  const toggleStarSpace = useOptions((state) => state.toggleStarSpace);
+  const controls = useOptions((state) => state.controls);
+  const toggleControls = useOptions((state) => state.toggleControls);
 
   useEffect(() => {
-    if (showOptionsPanel === true && ref.current !== null) {
+    if (optionsPanel === true && ref.current !== null) {
       ref.current.focus();
     }
-  }, [showOptionsPanel]);
-
-  const onShowWeatherOptionClick = useCallback(() => {
-    toggleWeatherWidget();
-  }, [toggleWeatherWidget]);
-
-  const onShowCurrencyOptionClick = useCallback(() => {
-    toggleCurrencyWidget();
-  }, [toggleCurrencyWidget]);
-
-  const onShowSitesOptionClick = useCallback(() => {
-    toggleWebSites();
-  }, [toggleWebSites]);
-
-  const onBackgroundStarSpaceOptionClick = useCallback(() => {
-    toggleBackgroundStarSpaceAnimation();
-  }, [toggleBackgroundStarSpaceAnimation]);
-
-  const onAdditionalOptionsOptionClick = useCallback(() => {
-    toggleAdditionalOptions();
-  }, [toggleAdditionalOptions]);
+  }, [optionsPanel]);
 
   return (
     <Panel
       ref={ref}
-      active={showOptionsPanel === true}
+      active={optionsPanel === true}
       tabIndex={-1}
-      onBlur={onPanelBlur}
+      onBlur={closeOptionsPanel}
     >
-      <OptionsButton
-        active={showWeatherWidget}
-        onClick={onShowWeatherOptionClick}
-      >
+      <OptionsButton active={weather} onClick={toggleWeather}>
         Show weather
       </OptionsButton>
-      <OptionsButton
-        active={showCurrencyWidget}
-        onClick={onShowCurrencyOptionClick}
-      >
+      <OptionsButton active={currency} onClick={toggleCurrency}>
         Show currency
       </OptionsButton>
-      <OptionsButton active={showWebSites} onClick={onShowSitesOptionClick}>
+      <OptionsButton active={sites} onClick={toggleSites}>
         Show sites
       </OptionsButton>
-      <OptionsButton
-        active={backgroundStarSpaceAnimation}
-        onClick={onBackgroundStarSpaceOptionClick}
-      >
+      <OptionsButton active={starSpace} onClick={toggleStarSpace}>
         Background Star Space
       </OptionsButton>
-      <OptionsButton
-        active={additionalOptions}
-        onClick={onAdditionalOptionsOptionClick}
-      >
+      <OptionsButton active={controls} onClick={toggleControls}>
         Additional Options
       </OptionsButton>
     </Panel>

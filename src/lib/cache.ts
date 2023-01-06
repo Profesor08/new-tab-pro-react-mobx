@@ -1,4 +1,4 @@
-import { getFromStorage, setToStorage } from "./storage";
+import { getFromStorage, setToStorage } from "./storage/storage";
 
 interface CacheObject<T> {
   data: T;

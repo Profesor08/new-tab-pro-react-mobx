@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
-import { useControls } from "../../store/options";
+import React from "react";
 import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
+import { useControls } from "../../store/options";
 
 const Icon = styled.i`
   font-style: normal;
@@ -48,23 +48,15 @@ const MenuContainer = styled.div`
 `;
 
 export const MenuBar = () => {
-  const toggleOptionsPanel = useControls((state) => state.toggleOptionsPanel);
-  const toggleAddSiteForm = useControls((state) => state.toggleAddSiteForm);
-
-  const onOptionsButtonClick = useCallback(() => {
-    toggleOptionsPanel();
-  }, [toggleOptionsPanel]);
-
-  const onAddSiteFormButtonClick = useCallback(() => {
-    toggleAddSiteForm();
-  }, [toggleAddSiteForm]);
+  const openOptionsPanel = useControls((state) => state.openOptionsPanel);
+  const openBookmarks = useControls((state) => state.openBookmarks);
 
   return (
     <MenuContainer>
-      <MenuButton onClick={onOptionsButtonClick}>
+      <MenuButton onClick={openOptionsPanel}>
         <Icon>☰</Icon>
       </MenuButton>
-      <MenuButton onClick={onAddSiteFormButtonClick}>
+      <MenuButton onClick={openBookmarks}>
         <Icon>★</Icon>
       </MenuButton>
     </MenuContainer>

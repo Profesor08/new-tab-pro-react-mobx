@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { observer } from "mobx-react";
-import bookmarksStore from "../../store/bookmarks/store";
 import {
   Form,
   FormHeader,
@@ -10,15 +8,20 @@ import {
   FormButtonsGroup,
   FormButton,
 } from "../../lib/form";
+import {
+  updateBookmark,
+  useEditingBookmarkStore,
+} from "../../store/bookmarks/store";
 
-export const BookmarkEditor = observer(() => {
-  const bookmark = bookmarksStore.editingBookmark;
+export const BookmarkEditor = () => {
+  const bookmark = useEditingBookmarkStore((state) => state.bookmark);
+  const setBookmark = useEditingBookmarkStore((state) => state.setBookmark);
   const [active, setActive] = useState(false);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
 
   const close = () => {
-    bookmarksStore.editingBookmark = null;
+    setBookmark(null);
   };
 
   useEffect(() => {
@@ -36,11 +39,11 @@ export const BookmarkEditor = observer(() => {
       closeAction={() => {
         close();
       }}
-      onSubmit={e => {
+      onSubmit={(e) => {
         e.preventDefault();
 
-        if (bookmark) {
-          bookmarksStore.updateBookmark(bookmark.id, {
+        if (bookmark !== null) {
+          updateBookmark(bookmark.id, {
             title,
             url,
           });
@@ -54,14 +57,14 @@ export const BookmarkEditor = observer(() => {
         <FormTextField
           label="Bookmark title"
           value={title}
-          onChange={e => {
+          onChange={(e) => {
             setTitle(e.target.value);
           }}
         />
         <FormTextField
           label="Bookmark url"
           value={url}
-          onChange={e => {
+          onChange={(e) => {
             setUrl(e.target.value);
           }}
         />
@@ -71,7 +74,7 @@ export const BookmarkEditor = observer(() => {
           <FormButton success>Update</FormButton>
           <FormButton
             warn
-            onClick={event => {
+            onClick={(event) => {
               event.preventDefault();
               close();
             }}
@@ -82,4 +85,4 @@ export const BookmarkEditor = observer(() => {
       </FormFooter>
     </Form>
   );
-});
+};

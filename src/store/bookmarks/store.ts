@@ -1,71 +1,76 @@
-import { observable, computed, makeAutoObservable } from "mobx";
-import { Sort, bookmarksFilter, saveToStorage } from "./utils";
+import { Sort, bookmarksFilter } from "./utils";
 import { Bookmarks } from "./Bookmarks";
+import create from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { CommonStorageProvider } from "../../lib/storage/providers/CommonStorageProvider";
 
 export { Sort };
 
-class BookmarksStore {
-  private _bookmarks: BookmarkTreeNode[] = [];
-  private _sortOrder: SortOrder = {
-    type: "ORDER_BY_DATE",
-    direction: "ORDER_DIRECTION_DESCENDING",
-  };
-  public bookmarksPanelShow: boolean = false;
-  private _searchQuery: string = "";
-  public editingBookmark: BookmarkTreeNode | null = null;
+const useBookmarksStore = create<{
+  bookmarks: BookmarkTreeNode[];
+}>(() => ({
+  bookmarks: [],
+}));
 
-  private bookmarksWorker = new Bookmarks((bookmarks) => {
-    this._bookmarks = bookmarks;
-  });
+export const useSearchQueryStore = create<{
+  query: string;
+  setQuery: (query: string) => void;
+}>((set) => ({
+  query: "",
+  setQuery: (query) => set({ query }),
+}));
 
-  constructor() {
-    makeAutoObservable(this);
-  }
+export const useSortOrderStore = create(
+  persist<
+    SortOrder & {
+      setSortType: (type: SortType) => void;
+      setSortDirection: (direction: SortDirection) => void;
+    }
+  >(
+    (set) => ({
+      type: "ORDER_BY_DATE",
+      direction: "ORDER_DIRECTION_DESCENDING",
+      setSortType: (type) => set({ type }),
+      setSortDirection: (direction) => set({ direction }),
+    }),
+    {
+      name: "new-tab-pro-bookmarks-sorting",
+      storage: createJSONStorage(() => new CommonStorageProvider()),
+    },
+  ),
+);
 
-  get bookmarks(): BookmarkTreeNode[] {
-    return bookmarksFilter(
-      this._bookmarks,
-      this._searchQuery,
-      this._sortOrder.type,
-      this._sortOrder.direction,
-    );
-  }
+export const useEditingBookmarkStore = create<{
+  bookmark: BookmarkTreeNode | null;
+  setBookmark: (bookmark: BookmarkTreeNode | null) => void;
+}>((set) => ({
+  bookmark: null,
+  setBookmark: (bookmark) => set({ bookmark }),
+}));
 
-  set bookmarks(bookmarks: BookmarkTreeNode[]) {
-    this._bookmarks = bookmarks;
-  }
+export const useBookmarks = () => {
+  const bookmarks = useBookmarksStore((state) => state.bookmarks);
+  const query = useSearchQueryStore((state) => state.query);
+  const { type, direction } = useSortOrderStore();
 
-  get sortOrder() {
-    return this._sortOrder;
-  }
+  return bookmarksFilter(bookmarks, query, type, direction);
+};
 
-  set sortOrder(sortOrder) {
-    this._sortOrder = sortOrder;
-    saveToStorage("bookmarksSortOrder", sortOrder);
-  }
+const bookmarksWorker = new Bookmarks((bookmarks) => {
+  useBookmarksStore.setState({ bookmarks });
+});
 
-  get searchQuery() {
-    return this._searchQuery;
-  }
+export const removeBookmark = async (bookmark: BookmarkTreeNode) => {
+  await bookmarksWorker.remove(bookmark);
+};
 
-  set searchQuery(value) {
-    this._searchQuery = value;
-  }
+export const restoreBookmark = async () => {
+  await bookmarksWorker.restore();
+};
 
-  async removeBookmark(bookmark: BookmarkTreeNode) {
-    await this.bookmarksWorker.remove(bookmark);
-  }
-
-  async restoreBookmark() {
-    await this.bookmarksWorker.restore();
-  }
-
-  async updateBookmark(
-    id: string,
-    changes: chrome.bookmarks.BookmarkChangesArg,
-  ) {
-    await this.bookmarksWorker.update(id, changes);
-  }
-}
-
-export default new BookmarksStore();
+export const updateBookmark = async (
+  id: string,
+  changes: chrome.bookmarks.BookmarkChangesArg,
+) => {
+  await bookmarksWorker.update(id, changes);
+};

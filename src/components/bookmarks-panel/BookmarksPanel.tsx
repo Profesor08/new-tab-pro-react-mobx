@@ -1,101 +1,86 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components/macro";
-import { observer, Observer } from "mobx-react";
-import bookmarksStore from "../../store/bookmarks/store";
+import {
+  restoreBookmark,
+  useBookmarks,
+  useSearchQueryStore,
+  useSortOrderStore,
+} from "../../store/bookmarks/store";
 import { Panel, PanelHeader, PanelBody, PanelContainer } from "../panel/Panel";
 import { SearchInput } from "../search/Search";
 import { SortMenu } from "./SortMenu";
 import { IconButton } from "../buttons/IconButton";
 import { BookmarkItem } from "./BookmarkItem";
-import { BookmarkContextMenu, createBookmarkMenu } from "./BookmarkContextMenu";
 import { BookmarkEditor } from "./BookmarkEditor";
-import { runInAction } from "mobx";
+import { useControls } from "../../store/options";
+import ViewportList from "react-viewport-list";
 
 const BookmarksPanelElement = styled(Panel)``;
 
-const BookmarksSearch = styled(SearchInput)`
-  width: 70%;
-`;
+const BookmarksSearch = styled(SearchInput)``;
 
-const RestoreButton = styled(IconButton)`
-  margin-left: 10px;
-`;
-
-const { open, update } = createBookmarkMenu();
-
-const BookmarksList = () => {
-  return (
-    <Observer>
-      {() => {
-        if (bookmarksStore.bookmarksPanelShow === true) {
-          return (
-            <>
-              {bookmarksStore.bookmarks.map((bookmark, id) => (
-                <BookmarkItem
-                  key={`bookmark-item-${id}`}
-                  bookmark={bookmark}
-                  onMenu={open}
-                />
-              ))}
-            </>
-          );
-        }
-
-        return null;
-      }}
-    </Observer>
-  );
-};
+const RestoreButton = styled(IconButton)``;
 
 export const BookmarksPanel = () => {
-  const panelContainerRef = useRef(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const showBookmarksPanel = useControls((state) => state.bookmarks);
+  const closeBookmarksPanel = useControls((state) => state.closeBookmarks);
 
-  const onClose = () => {
-    runInAction(() => {
-      bookmarksStore.bookmarksPanelShow = false;
+  const searchQuery = useSearchQueryStore((state) => state.query);
+  const setSearchQuery = useSearchQueryStore((state) => state.setQuery);
+
+  const sortType = useSortOrderStore((state) => state.type);
+  const sortDirection = useSortOrderStore((state) => state.direction);
+
+  const bookmarks = useBookmarks();
+
+  useEffect(() => {
+    viewportRef.current?.scrollTo({
+      top: 0,
+      behavior: "auto",
     });
-  };
+  }, [searchQuery, sortType, sortDirection]);
 
   return (
-    <Observer>
-      {() => {
-        return (
-          <BookmarksPanelElement
-            active={bookmarksStore.bookmarksPanelShow}
-            onClose={onClose}
-          >
-            <PanelHeader onClose={onClose}>
-              <BookmarksSearch
-                value={bookmarksStore.searchQuery}
-                placeholder="Поиск"
-                onChange={(value) => {
-                  bookmarksStore.searchQuery = value;
-                }}
-              />
-              <SortMenu />
-              <RestoreButton
-                onClick={() => {
-                  bookmarksStore.restoreBookmark();
-                }}
-              >
-                ↶
-              </RestoreButton>
-            </PanelHeader>
-            <PanelBody>
-              <PanelContainer
-                ref={panelContainerRef}
-                onScroll={() => {
-                  update();
-                }}
-              >
-                <BookmarkContextMenu parent={panelContainerRef} />
-                <BookmarksList />
-              </PanelContainer>
-            </PanelBody>
-            <BookmarkEditor />
-          </BookmarksPanelElement>
-        );
-      }}
-    </Observer>
+    <BookmarksPanelElement
+      active={showBookmarksPanel === true}
+      onClose={closeBookmarksPanel}
+    >
+      <PanelHeader onClose={closeBookmarksPanel}>
+        <BookmarksSearch
+          value={searchQuery}
+          placeholder="Поиск"
+          onChange={setSearchQuery}
+        />
+        <SortMenu />
+        <RestoreButton
+          onClick={() => {
+            restoreBookmark();
+          }}
+        >
+          ↶
+        </RestoreButton>
+      </PanelHeader>
+      <PanelBody>
+        <PanelContainer ref={viewportRef}>
+          {showBookmarksPanel && (
+            <ViewportList
+              viewportRef={viewportRef}
+              items={bookmarks}
+              itemMinSize={40}
+              margin={0}
+            >
+              {(bookmark, index) => (
+                <BookmarkItem
+                  key={`bookmark-item-${index}`}
+                  bookmark={bookmark}
+                />
+              )}
+            </ViewportList>
+          )}
+        </PanelContainer>
+      </PanelBody>
+      <BookmarkEditor />
+    </BookmarksPanelElement>
   );
 };
