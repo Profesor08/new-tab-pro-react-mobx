@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { useControls, useOptions } from "../../store/options";
+import React from "react";
+import { useOptions } from "../../store/options";
 import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
 import { ActionButton, ActionMenu } from "../action-menu/ActionMenu";

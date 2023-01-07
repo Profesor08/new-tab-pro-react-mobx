@@ -111,7 +111,7 @@ const useSitesPanelAnimation = (
         container.style.transform = `perspective(900px) rotateX(${-rotateX}deg) rotateY(${-rotateY}deg) translate3d(0, 0, 0)`;
       };
     }
-  }, []);
+  }, [ref]);
 };
 
 const AnimationPanelElement = styled.div`
@@ -121,7 +121,7 @@ const AnimationPanelElement = styled.div`
   transform: translateZ(0);
 `;
 
-export const AnimationPanel = ({ children, ...rest }: any) => {
+export const AnimationPanel = styled(({ children, ...rest }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useSitesPanelAnimation(ref);
@@ -131,4 +131,4 @@ export const AnimationPanel = ({ children, ...rest }: any) => {
       {children}
     </AnimationPanelElement>
   );
-};
+})``;
