@@ -199,6 +199,8 @@ const Site = styled<
     onRemove(index);
   }, [index, onRemove]);
 
+  console.log(site.image);
+
   return (
     <SiteItem>
       <SiteHeader>
