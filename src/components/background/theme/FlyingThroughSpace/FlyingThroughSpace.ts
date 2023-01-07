@@ -10,19 +10,19 @@ function rand(min: number, max: number): number {
 const loader = new THREE.TextureLoader();
 
 export const texture1: THREE.Texture = loader.load(
-  "/images/background/stars/image-1.png",
+  "images/background/stars/image-1.png",
 );
 
 export const texture2: THREE.Texture = loader.load(
-  "/images/background/stars/image-2.png",
+  "images/background/stars/image-2.png",
 );
 
 export const texture3: THREE.Texture = loader.load(
-  "/images/background/stars/image-3.png",
+  "images/background/stars/image-3.png",
 );
 
 export const texture4: THREE.Texture = loader.load(
-  "/images/background/stars/image-4.png",
+  "images/background/stars/image-4.png",
 );
 
 export class FlyingThroughSpace {
