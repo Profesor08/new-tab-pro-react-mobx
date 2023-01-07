@@ -48,20 +48,15 @@ const SiteLink = styled.a`
   position: relative;
 `;
 
-interface ISiteImageProps {
-  src?: string;
-}
-
-const SiteImage = styled.div<ISiteImageProps>`
+const SiteImage = styled.img`
   position: absolute;
   top: 50%;
   left: 50%;
   width: 70%;
   height: 70%;
+  object-fit: contain;
+  object-position: center center;
   transform: scale(1, 1) translate(-50%, -50%);
-  background: no-repeat center center;
-  background-image: url(${(p) => p.src});
-  background-size: contain;
   transform-origin: 0 0;
   transition: ease transform ${theme.animationSpeed};
 `;
@@ -198,10 +193,6 @@ const Site = styled<
   const onRemoveClick = useCallback(() => {
     onRemove(index);
   }, [index, onRemove]);
-
-  // @ts-ignore
-  // eslint-disable-next-line no-console
-  console.log(site.image);
 
   return (
     <SiteItem>
