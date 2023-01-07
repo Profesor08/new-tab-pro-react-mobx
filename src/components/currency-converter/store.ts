@@ -213,7 +213,7 @@ export const queryClient = new QueryClient({
 });
 
 const asyncStoragePersistor = createAsyncStoragePersistor({
-  key: "currencyOfflineCache",
+  key: "new-tab-pro-currency",
   throttleTime: 0,
   storage: new CommonStorageProvider(),
 });

@@ -55,7 +55,7 @@ export const queryClient = new QueryClient({
 });
 
 const asyncStoragePersistor = createAsyncStoragePersistor({
-  key: "weatherOfflineCache",
+  key: "new-tab-pro-weather",
   throttleTime: 0,
   storage: new CommonStorageProvider(),
 });
