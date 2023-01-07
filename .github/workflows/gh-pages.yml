@@ -15,7 +15,10 @@ jobs:
         node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
@@ -23,17 +26,16 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install
-      run: |
-        npm install
+      run: npm install
 
     - name: Lint
-      run: |
-        npm run lint
+      run: npm run lint
 
     - name: Build
-      run: |
-        npm run build
+      run: npm run build
 
     - name: Deploy
-      run: |
-        npm run deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+        branch: master
+        folder: build
