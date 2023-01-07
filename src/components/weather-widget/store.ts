@@ -45,6 +45,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       cacheTime: 1000 * 60 * 5, // 5 min
+      retryOnMount: true,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
@@ -62,5 +63,5 @@ const asyncStoragePersistor = createAsyncStoragePersistor({
 persistQueryClient({
   queryClient,
   persistor: asyncStoragePersistor,
-  buster: "",
+  maxAge: 1000 * 60 * 5, // 5 min
 });
