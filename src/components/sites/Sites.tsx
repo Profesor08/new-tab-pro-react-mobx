@@ -199,6 +199,8 @@ const Site = styled<
     onRemove(index);
   }, [index, onRemove]);
 
+  // @ts-ignore
+  // eslint-disable-next-line no-console
   console.log(site.image);
 
   return (
