@@ -2,13 +2,7 @@ import { AsyncStorage } from "../types";
 
 export class WebStorageProvider implements AsyncStorage {
   getItem = async (key: string) => {
-    const item = localStorage.getItem(key);
-
-    if (item !== null) {
-      return item;
-    } else {
-      throw `No data found with key: ${key}`;
-    }
+    return localStorage.getItem(key);
   };
 
   setItem = async (key: string, value: string) => {

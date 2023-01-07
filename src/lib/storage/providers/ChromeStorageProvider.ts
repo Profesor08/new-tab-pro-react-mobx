@@ -2,13 +2,10 @@ import { AsyncStorage } from "../types";
 
 export class ChromeStorageProvider implements AsyncStorage {
   getItem = async (key: string) => {
-    const items = await chrome.storage.local.get([key]);
+    const items: Record<string, string | undefined> =
+      await chrome.storage.local.get([key]);
 
-    if (items[key] !== undefined) {
-      return items[key];
-    } else {
-      throw `No data found with key: ${key}`;
-    }
+    return items[key] ?? null;
   };
 
   setItem = async (key: string, value: string) => {

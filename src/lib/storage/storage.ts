@@ -1,7 +1,9 @@
 import { CommonStorageProvider } from "./providers/CommonStorageProvider";
 
+// TODO: remove
 const storage = new CommonStorageProvider();
 
+// TODO: remove
 export const setToStorage = async <T>(key: string, data: T) => {
   return await storage.setItem(
     key,
@@ -11,6 +13,7 @@ export const setToStorage = async <T>(key: string, data: T) => {
   );
 };
 
+// TODO: remove
 export const getFromStorage = async <T>(key: string): Promise<T> => {
   const json = await storage.getItem(key);
 
