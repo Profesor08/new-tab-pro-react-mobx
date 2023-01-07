@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import lottie from "lottie-web";
 import styled from "styled-components";
-import { getWeatherIcon } from "./utils";
+import { getWeatherIcon } from "../utils";
 
 const Icon = styled.div``;
 

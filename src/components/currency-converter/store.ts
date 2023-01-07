@@ -207,11 +207,14 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
+      keepPreviousData: true,
     },
   },
 });
 
 const asyncStoragePersistor = createAsyncStoragePersistor({
+  key: "currencyOfflineCache",
+  throttleTime: 0,
   storage: new CommonStorageProvider(),
 });
 
