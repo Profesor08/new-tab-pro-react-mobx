@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { observer } from "mobx-react";
-import options from "./../../store/options";
+import React, { useCallback, useState } from "react";
 import {
   Form,
   FormHeader,
@@ -10,75 +8,88 @@ import {
   FormButton,
   FormTextField,
 } from "../../lib/form";
-import sites, { ISite, ISiteProps } from "../../store/sites";
+import { useControls } from "../../store/options";
+import { useSites } from "./store";
 
-const useSite = (): [ISite, React.Dispatch<ISiteProps>] => {
-  const [site, setSite] = useState({ name: "", url: "", image: "" } as ISite);
+export const AddSiteForm = () => {
+  const showAddSiteForm = useControls((state) => state.addSite);
+  const closeAddSite = useControls((state) => state.closeAddSite);
+  const [site, setSite] = useState<ISite>({ name: "", url: "", image: "" });
+  const addSite = useSites((state) => state.add);
 
-  const updateSite = (props: ISiteProps) => {
-    setSite({
-      ...site,
-      ...props,
-    });
-  };
-
-  return [site, updateSite];
-};
-
-export const AddSiteForm = observer(() => {
-  const [site, setSite] = useSite();
-
-  const clear = () => {
+  const clear = useCallback(() => {
     setSite({ name: "", url: "", image: "" });
-  };
+  }, [setSite]);
 
-  const close = () => {
-    options.showAddSiteForm = false;
-  };
+  const onSiteNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSite((state) => ({ ...state, name: event.target.value }));
+    },
+    [],
+  );
+
+  const onSiteUrlChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSite((state) => ({ ...state, url: event.target.value }));
+    },
+    [],
+  );
+
+  const onSiteImageChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSite((state) => ({ ...state, image: event.target.value }));
+    },
+    [],
+  );
+
+  const onFormSubmit = useCallback((event: React.FormEvent) => {
+    event.preventDefault();
+  }, []);
+
+  const onAddClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      addSite(site);
+      closeAddSite();
+      clear();
+    },
+    [addSite, clear, closeAddSite, site],
+  );
 
   return (
     <Form
-      active={options.showAddSiteForm}
-      onSubmit={e => e.preventDefault()}
-      closeAction={() => {
-        close();
-      }}
+      active={showAddSiteForm === true}
+      onSubmit={onFormSubmit}
+      closeAction={closeAddSite}
     >
       <FormHeader>Add Site</FormHeader>
       <FormBody>
         <FormTextField
           label="Site name"
           value={site.name}
-          onChange={e => setSite({ name: e.target.value })}
+          onChange={onSiteNameChange}
         />
         <FormTextField
           label="Site url"
           value={site.url}
-          onChange={e => setSite({ url: e.target.value })}
+          onChange={onSiteUrlChange}
         />
         <FormTextField
           label="Image url or data:base64"
           value={site.image}
-          onChange={e => setSite({ image: e.target.value })}
+          onChange={onSiteImageChange}
         />
       </FormBody>
       <FormFooter>
         <FormButtonsGroup>
-          <FormButton
-            success
-            onClick={() => {
-              sites.add(site);
-              close();
-              clear();
-            }}
-          >
+          <FormButton success onClick={onAddClick}>
             Add
           </FormButton>
-          <FormButton warn onClick={() => clear()}>
+          <FormButton warn onClick={clear}>
             Undo
           </FormButton>
         </FormButtonsGroup>
       </FormFooter>
     </Form>
   );
-});
+};
