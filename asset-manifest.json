@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/new-tab-pro-react-mobx/static/js/main.3511e61e.js",
+    "main.js": "/new-tab-pro-react-mobx/static/js/main.473e7b17.js",
     "index.html": "/new-tab-pro-react-mobx/index.html",
-    "main.3511e61e.js.map": "/new-tab-pro-react-mobx/static/js/main.3511e61e.js.map"
+    "main.473e7b17.js.map": "/new-tab-pro-react-mobx/static/js/main.473e7b17.js.map"
   },
   "entrypoints": [
-    "static/js/main.3511e61e.js"
+    "static/js/main.473e7b17.js"
   ]
 }
