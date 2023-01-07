@@ -6,7 +6,7 @@ export class RemovedBookmarks {
   }
 
   get(): Promise<BookmarkTreeNode[]> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const removedBookmarksJson = localStorage.getItem(this.storageKey);
 
       if (removedBookmarksJson) {
@@ -17,8 +17,8 @@ export class RemovedBookmarks {
     });
   }
 
-  update(bookmarks: BookmarkTreeNode[]) {
-    return new Promise(resolve => {
+  update(bookmarks: BookmarkTreeNode[]): Promise<void> {
+    return new Promise((resolve) => {
       localStorage.setItem(this.storageKey, JSON.stringify(bookmarks));
       resolve();
     });

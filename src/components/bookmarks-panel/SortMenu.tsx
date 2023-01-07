@@ -1,135 +1,108 @@
-import React, { useState } from "react";
-import styled, { css } from "styled-components/macro";
+import React, { useCallback } from "react";
+import styled from "styled-components/macro";
 import {
   ActionMenu,
   ActionButton,
   ActionDivider,
 } from "../action-menu/ActionMenu";
 import { IconButton } from "../buttons/IconButton";
-import bookmarksStore, { Sort } from "../../store/bookmarks/store";
+import { Sort, useSortOrderStore } from "../../store/bookmarks/store";
+import { Tooltip } from "../tooltip/Tooltip";
 
-interface ISortMenuElementProps {
-  active?: boolean;
-}
+const Menu = styled<Styled<{ setOpen?: (open: boolean) => void }>>(
+  ({ setOpen }) => {
+    const sortType = useSortOrderStore((state) => state.type);
+    const sortDirection = useSortOrderStore((state) => state.direction);
+    const setSortType = useSortOrderStore((state) => state.setSortType);
+    const setSortDirection = useSortOrderStore(
+      (state) => state.setSortDirection,
+    );
 
-const SortMenuElement = styled.div.attrs({
-  tabIndex: -1,
-})<ISortMenuElementProps>`
-  position: relative;
-  z-index: 2;
-  margin-left: 10px;
+    const isActive = useCallback(
+      (type: SortType, direction: SortDirection): boolean => {
+        return sortType === type && sortDirection === direction;
+      },
+      [sortDirection, sortType],
+    );
 
-  ${ActionMenu} {
-    position: absolute;
-    top: 100%;
-    left: -99999px;
-    opacity: 0;
-    transform: translate(-50%, 20px);
-    transition: ease transform 0.3s, opacity ease 0.3s, ease left 0s;
-    transition-delay: 0s, 0s, 0.3s;
-  }
+    const close = useCallback(() => {
+      setOpen?.(false);
+    }, [setOpen]);
 
-  ${(props) =>
-    props.active
-      ? css`
-          ${ActionMenu} {
-            left: 50%;
-            opacity: 1;
-            transform: translate(-50%, 10px);
-            transition-delay: 0s, 0s, 0s;
-          }
-        `
-      : null}
-`;
+    const onSortByDateAscending = useCallback(() => {
+      setSortType(Sort.ORDER_BY_DATE);
+      setSortDirection(Sort.ORDER_DIRECTION_ASCENDING);
+      close();
+    }, [close, setSortDirection, setSortType]);
 
-const isActive = (type: SortType, direction: SortDirection): boolean => {
-  return (
-    bookmarksStore.sortOrder.type === type &&
-    bookmarksStore.sortOrder.direction === direction
-  );
-};
+    const onSortByDateDescending = useCallback(() => {
+      setSortType(Sort.ORDER_BY_DATE);
+      setSortDirection(Sort.ORDER_DIRECTION_DESCENDING);
+      close();
+    }, [close, setSortDirection, setSortType]);
 
-export const SortMenu = () => {
-  const [active, setActive] = useState(false);
+    const onSortByNameAscending = useCallback(() => {
+      setSortType(Sort.ORDER_BY_NAME);
+      setSortDirection(Sort.ORDER_DIRECTION_ASCENDING);
+      close();
+    }, [close, setSortDirection, setSortType]);
 
-  return (
-    <SortMenuElement
-      active={active}
-      onFocus={() => {
-        setActive(true);
-      }}
-      onBlur={() => {
-        setActive(false);
-      }}
-    >
-      <IconButton>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
-          <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
-        </svg>
-      </IconButton>
+    const onSortByNameDescending = useCallback(() => {
+      setSortType(Sort.ORDER_BY_NAME);
+      setSortDirection(Sort.ORDER_DIRECTION_DESCENDING);
+      close();
+    }, [close, setSortDirection, setSortType]);
+
+    return (
       <ActionMenu>
         <ActionButton
           active={isActive(Sort.ORDER_BY_DATE, Sort.ORDER_DIRECTION_DESCENDING)}
-          onClick={() => {
-            bookmarksStore.sortOrder = {
-              type: Sort.ORDER_BY_DATE,
-              direction: Sort.ORDER_DIRECTION_DESCENDING,
-            };
-            setActive(false);
-          }}
+          onClick={onSortByDateDescending}
         >
           ↑ By Date
         </ActionButton>
         <ActionButton
           active={isActive(Sort.ORDER_BY_DATE, Sort.ORDER_DIRECTION_ASCENDING)}
-          onClick={() => {
-            bookmarksStore.sortOrder = {
-              type: Sort.ORDER_BY_DATE,
-              direction: Sort.ORDER_DIRECTION_ASCENDING,
-            };
-            setActive(false);
-          }}
+          onClick={onSortByDateAscending}
         >
           ↓ By Date
         </ActionButton>
         <ActionButton
           active={isActive(Sort.ORDER_BY_NAME, Sort.ORDER_DIRECTION_DESCENDING)}
-          onClick={() => {
-            bookmarksStore.sortOrder = {
-              type: Sort.ORDER_BY_NAME,
-              direction: Sort.ORDER_DIRECTION_DESCENDING,
-            };
-            setActive(false);
-          }}
+          onClick={onSortByNameDescending}
         >
           ↑ By Name
         </ActionButton>
         <ActionButton
           active={isActive(Sort.ORDER_BY_NAME, Sort.ORDER_DIRECTION_ASCENDING)}
-          onClick={() => {
-            bookmarksStore.sortOrder = {
-              type: Sort.ORDER_BY_NAME,
-              direction: Sort.ORDER_DIRECTION_ASCENDING,
-            };
-            setActive(false);
-          }}
+          onClick={onSortByNameAscending}
         >
           ↓ By Name
         </ActionButton>
         <ActionDivider />
-        <ActionButton
-          onClick={() => {
-            setActive(false);
-          }}
-        >
-          &nbsp;&nbsp;&nbsp;Close
-        </ActionButton>
+        <ActionButton onClick={close}>&nbsp;&nbsp;&nbsp;Close</ActionButton>
       </ActionMenu>
-    </SortMenuElement>
+    );
+  },
+)``;
+
+export const SortMenu = () => {
+  return (
+    <Tooltip
+      behavior="click"
+      toggle={({ reference, referenceProps, ...props }) => (
+        <IconButton ref={reference} {...referenceProps} {...props}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
+          </svg>
+        </IconButton>
+      )}
+      content={({ setOpen }) => <Menu setOpen={setOpen} />}
+    />
   );
 };

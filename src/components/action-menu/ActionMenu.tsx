@@ -6,7 +6,7 @@ interface IActionButtonProps {
 }
 
 export const ActionButton = styled.div<IActionButtonProps>`
-  display: flex;
+  display: grid;
   align-items: center;
   width: 100%;
   height: 32px;
@@ -17,19 +17,19 @@ export const ActionButton = styled.div<IActionButtonProps>`
   line-height: 100%;
   text-align: left;
   border: 0;
-  background: transparent;
+  background-color: transparent;
   outline: none;
   transition: ease background-color 0.1s;
 
   &:hover {
-    background: #e0e0e0;
+    background-color: #e0e0e0;
     cursor: pointer;
   }
 
   ${(props) =>
     props.active
       ? css`
-          background: #e0ebfd;
+          background-color: #e0ebfd;
         `
       : null}
 
@@ -43,17 +43,18 @@ export const ActionButton = styled.div<IActionButtonProps>`
 `;
 
 export const ActionDivider = styled.div`
-  background: rgba(0, 0, 0, 0.11);
+  background-color: rgba(0, 0, 0, 0.11);
   border-width: 0;
   height: 1px;
   margin: 8px 0;
 `;
 
 export const ActionMenu = styled.div`
+  display: grid;
   white-space: nowrap;
   box-shadow: 0 2px 6px #9e9e9e;
-  background: #f4f4f4;
-  border-radius: 2px;
+  background-color: #ffffff;
+  border-radius: 4px;
   padding: 8px 0;
   transition: box-shadow 250ms;
 `;

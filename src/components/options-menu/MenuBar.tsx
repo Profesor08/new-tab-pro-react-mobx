@@ -1,9 +1,9 @@
 import React from "react";
-import { observer } from "mobx-react";
-import options from "../../store/options";
-import bookmarks from "../../store/bookmarks/store";
 import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
+import { useControls } from "../../store/options";
+import { Tooltip } from "../tooltip/Tooltip";
+import { OptionsPanel } from "./OptionsPanel";
 
 const Icon = styled.i`
   font-style: normal;
@@ -49,23 +49,27 @@ const MenuContainer = styled.div`
   z-index: 100;
 `;
 
-export const MenuBar = observer(() => {
+export const MenuBar = () => {
+  const openBookmarks = useControls((state) => state.openBookmarks);
+
   return (
     <MenuContainer>
-      <MenuButton
-        onClick={() => {
-          options.optionsPanelShow = true;
+      <Tooltip
+        behavior="click"
+        floatingProps={{
+          placement: "right-start",
         }}
-      >
-        <Icon>☰</Icon>
-      </MenuButton>
-      <MenuButton
-        onClick={() => {
-          bookmarks.bookmarksPanelShow = true;
-        }}
-      >
+        toggle={({ reference, referenceProps, ...props }) => (
+          <MenuButton ref={reference} {...referenceProps} {...props}>
+            <Icon>☰</Icon>
+          </MenuButton>
+        )}
+        content={() => <OptionsPanel />}
+      />
+
+      <MenuButton onClick={openBookmarks}>
         <Icon>★</Icon>
       </MenuButton>
     </MenuContainer>
   );
-});
+};

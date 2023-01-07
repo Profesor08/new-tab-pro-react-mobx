@@ -7,28 +7,33 @@ interface IPanelElementProps {
   active: boolean;
 }
 
-const PanelElement = styled.div.attrs({
-  tabIndex: -1,
-})<IPanelElementProps>`
+const PanelElement = styled.div<IPanelElementProps>`
   position: fixed;
   z-index: 100;
-  height: calc(100vh - 10px - 10px);
+  top: 10px;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 20px;
+
   width: 1000px;
   max-width: calc(100% - 28px - 28px);
-  transform: translate(-50%, 0);
-  left: 50%;
-  top: 10px;
-  background: white;
-  color: black;
-  padding: 20px;
+  height: calc(100vh - 10px - 10px);
+  padding: 16px;
+  border-radius: 8px;
+
+  color: #000000;
+  background-color: #ffffff;
   box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0,
-    rgba(60, 64, 67, 0.15) 0 1px 3px 1px;
-  border-radius: 4px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  font-family: "Roboto Light", sans-serif;
+    rgba(60, 64, 67, 0.15) 0 2px 6px 2px;
+
   user-select: none;
+  overflow: hidden;
+
+  font-family: "Roboto Light", sans-serif;
+
   transition: ease opacity ${theme.animationSpeed},
     ease transform ${theme.animationSpeed}, ease left 0s;
   transition-delay: 0s, 0s, 0s;
@@ -45,9 +50,7 @@ const PanelElement = styled.div.attrs({
 `;
 
 export const PanelBody = styled.div`
-  flex: 1;
-  margin-top: 20px;
-  display: flex;
+  display: grid;
   overflow: hidden;
 `;
 
@@ -76,12 +79,28 @@ export const PanelContainer = styled.div`
   }
 `;
 
-const PanelHeaderElement = styled.div`
-  display: flex;
+const PanelHeaderContent = styled.div`
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr;
   align-items: center;
+  gap: 8px;
+`;
+
+const PanelHeaderElement = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 0.3fr;
+  grid-template-areas: "content close";
+  align-items: center;
+  gap: 24px;
+
+  ${PanelHeaderContent} {
+    grid-area: content;
+  }
 
   ${CloseButton} {
-    margin-left: auto;
+    justify-self: end;
+    grid-area: close;
   }
 `;
 
@@ -97,7 +116,7 @@ export const PanelHeader = ({
 }: IPanelHeaderProps) => {
   return (
     <PanelHeaderElement className={className} {...rest}>
-      {children}
+      <PanelHeaderContent>{children}</PanelHeaderContent>
       <CloseButton onClick={onClose} />
     </PanelHeaderElement>
   );
@@ -154,22 +173,18 @@ const PanelBackdrop = styled.div<IPanelBackdropProps>`
 
 interface IPanelProps {
   active: boolean;
-  [key: string]: any;
+  onClose?: () => void;
 }
 
-export const Panel = ({
-  active = false,
-  children,
-  className,
-  onClose,
-  ...rest
-}: IPanelProps) => {
-  return (
-    <PanelWrapper active={active}>
-      <PanelBackdrop active={active} onClick={onClose} />
-      <PanelElement active={active} className={className} {...rest}>
-        {children}
-      </PanelElement>
-    </PanelWrapper>
-  );
-};
+export const Panel = styled<Styled<IPanelProps>>(
+  ({ active = false, children, onClose, ...props }) => {
+    return (
+      <PanelWrapper active={active}>
+        <PanelBackdrop active={active} onClick={onClose} />
+        <PanelElement active={active} {...props}>
+          {children}
+        </PanelElement>
+      </PanelWrapper>
+    );
+  },
+)``;

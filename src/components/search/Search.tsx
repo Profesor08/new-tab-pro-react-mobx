@@ -58,10 +58,10 @@ export const SearchInput = styled(
     const [value, setValue] = useState<string>(props.value || "");
 
     useEffect(() => {
-      if (onChange) {
+      if (onChange !== undefined) {
         onChange(value);
       }
-    }, [value]);
+    }, [onChange, value]);
 
     return (
       <InputWrapper className={className}>

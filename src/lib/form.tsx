@@ -248,7 +248,7 @@ export const FormFooter = styled.div`
 
 interface IFormProps {
   active: boolean;
-  closeAction?: () => any;
+  closeAction?: () => void;
   children?: React.ReactNode;
   onSubmit?: ((event: React.FormEvent<HTMLFormElement>) => void) | undefined;
 }

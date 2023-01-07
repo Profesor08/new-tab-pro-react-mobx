@@ -76,40 +76,32 @@ let speechRecognition: SpeechRecognition | null = null;
 const useSpeechRecognition = (): [boolean, React.Dispatch<boolean>] => {
   const [recording, setRecording] = useState(false);
 
-  try {
-    if (speechRecognition === null) {
-      speechRecognition = new webkitSpeechRecognition();
+  if (speechRecognition === null) {
+    speechRecognition = new webkitSpeechRecognition();
 
-      speechRecognition.addEventListener("result", (event) => {
-        setRecording(false);
+    speechRecognition.addEventListener("result", (event) => {
+      setRecording(false);
 
-        window.open(
-          "http://google.ru/search?q=" + event.results[0][0].transcript,
-          "",
-        );
-      });
-
-      speechRecognition.addEventListener(
-        "error",
+      window.open(
         // @ts-ignore
-        (event: SpeechRecognitionError) => {
-          if (event.error !== "no-speech") {
-            console.warn("%cERROR: " + event.error, "color: #FF0000;");
-            console.warn(event);
-          }
-
-          setRecording(false);
-        },
+        "http://google.ru/search?q=" + event.results[0][0].transcript,
+        "",
       );
-    }
+    });
 
-    if (recording) {
-      speechRecognition.start();
-    } else {
-      speechRecognition.stop();
-    }
-  } catch (err) {
-    console.warn(err);
+    speechRecognition.addEventListener(
+      "error",
+      // @ts-ignore
+      (event: SpeechRecognitionError) => {
+        setRecording(false);
+      },
+    );
+  }
+
+  if (recording) {
+    speechRecognition.start();
+  } else {
+    speechRecognition.stop();
   }
 
   return [recording, setRecording];

@@ -1,100 +1,86 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components/macro";
-import { observer } from "mobx-react";
-import bookmarksStore from "../../store/bookmarks/store";
+import {
+  restoreBookmark,
+  useBookmarks,
+  useSearchQueryStore,
+  useSortOrderStore,
+} from "../../store/bookmarks/store";
 import { Panel, PanelHeader, PanelBody, PanelContainer } from "../panel/Panel";
 import { SearchInput } from "../search/Search";
 import { SortMenu } from "./SortMenu";
 import { IconButton } from "../buttons/IconButton";
 import { BookmarkItem } from "./BookmarkItem";
-import { BookmarkContextMenu, useBookmarkMenu } from "./BookmarkContextMenu";
 import { BookmarkEditor } from "./BookmarkEditor";
+import { useControls } from "../../store/options";
+import ViewportList from "react-viewport-list";
 
 const BookmarksPanelElement = styled(Panel)``;
 
-const BookmarksSearch = styled(SearchInput)`
-  width: 70%;
-`;
+const BookmarksSearch = styled(SearchInput)``;
 
-const RestoreButton = styled(IconButton)`
-  margin-left: 10px;
-`;
+const RestoreButton = styled(IconButton)``;
 
-const { open, update } = useBookmarkMenu();
+export const BookmarksPanel = () => {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const showBookmarksPanel = useControls((state) => state.bookmarks);
+  const closeBookmarksPanel = useControls((state) => state.closeBookmarks);
 
-const BookmarksList = observer(() => {
-  const [active, setActive] = useState(false);
-  const [items, setItems] = useState<JSX.Element[]>([]);
-  const bookmarks = bookmarksStore.bookmarks;
+  const searchQuery = useSearchQueryStore((state) => state.query);
+  const setSearchQuery = useSearchQueryStore((state) => state.setQuery);
 
-  useEffect(() => {
-    if (bookmarksStore.bookmarksPanelShow === true) {
-      setActive(true);
-    }
-  }, [bookmarksStore.bookmarksPanelShow]);
+  const sortType = useSortOrderStore((state) => state.type);
+  const sortDirection = useSortOrderStore((state) => state.direction);
+
+  const bookmarks = useBookmarks();
 
   useEffect(() => {
-    if (active) {
-      setItems(
-        bookmarks.map((bookmark, id) => (
-          <BookmarkItem
-            key={`bookmark-item-${id}`}
-            bookmark={bookmark}
-            onMenu={open}
-          />
-        )),
-      );
-    }
-  }, [active, bookmarks]);
-
-  if (active) {
-    return <React.Fragment>{items}</React.Fragment>;
-  }
-
-  return null;
-});
-
-export const BookmarksPanel = observer(() => {
-  const panelContainerRef = useRef(null);
-
-  const onClose = () => {
-    bookmarksStore.bookmarksPanelShow = false;
-  };
+    viewportRef.current?.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+  }, [searchQuery, sortType, sortDirection]);
 
   return (
     <BookmarksPanelElement
-      active={bookmarksStore.bookmarksPanelShow}
-      onClose={onClose}
+      active={showBookmarksPanel === true}
+      onClose={closeBookmarksPanel}
     >
-      <PanelHeader onClose={onClose}>
+      <PanelHeader onClose={closeBookmarksPanel}>
         <BookmarksSearch
-          value={bookmarksStore.searchQuery}
+          value={searchQuery}
           placeholder="Поиск"
-          onChange={(value) => {
-            bookmarksStore.searchQuery = value;
-          }}
+          onChange={setSearchQuery}
         />
         <SortMenu />
         <RestoreButton
           onClick={() => {
-            bookmarksStore.restoreBookmark();
+            restoreBookmark();
           }}
         >
           ↶
         </RestoreButton>
       </PanelHeader>
       <PanelBody>
-        <PanelContainer
-          ref={panelContainerRef}
-          onScroll={() => {
-            update();
-          }}
-        >
-          <BookmarkContextMenu parent={panelContainerRef} />
-          <BookmarksList />
+        <PanelContainer ref={viewportRef}>
+          {showBookmarksPanel && (
+            <ViewportList
+              viewportRef={viewportRef}
+              items={bookmarks}
+              itemMinSize={40}
+              margin={0}
+            >
+              {(bookmark, index) => (
+                <BookmarkItem
+                  key={`bookmark-item-${index}`}
+                  bookmark={bookmark}
+                />
+              )}
+            </ViewportList>
+          )}
         </PanelContainer>
       </PanelBody>
       <BookmarkEditor />
     </BookmarksPanelElement>
   );
-});
+};

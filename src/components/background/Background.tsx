@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components/macro";
-import options from "../../store/options";
 import { FlyingThroughSpace } from "./theme/FlyingThroughSpace/FlyingThroughSpace";
-import { observer } from "mobx-react";
+import { useOptions } from "./../../store/options";
 
 const BackgroundCanvas = styled.canvas`
   position: fixed;
@@ -13,88 +12,24 @@ const BackgroundCanvas = styled.canvas`
   z-index: -1;
 `;
 
-export const Background = observer(() => {
+export const Background = () => {
   const ref = useRef<HTMLCanvasElement | null>(null);
   const [space, setSpace] = useState<FlyingThroughSpace | null>(null);
-
-  if (space !== null) {
-    if (options.backgroundStarSpaceAnimation) {
-      space.start();
-    } else {
-      space.stop();
-    }
-  }
+  const starSpace = useOptions((state) => state.starSpace);
 
   useEffect(() => {
     if (space === null && ref.current !== null) {
       setSpace(new FlyingThroughSpace(ref.current));
     }
-  });
+  }, [space]);
+
+  useEffect(() => {
+    if (starSpace === true) {
+      space?.start();
+    } else {
+      space?.stop();
+    }
+  }, [space, starSpace]);
 
   return <BackgroundCanvas ref={ref} />;
-});
-
-/*
-import { OptionsAppInitialState } from "../../store/reducers/optionsApp";
-
-interface BackgroundDispatchProps {}
-
-interface BackgroundStateProps {
-  show: boolean;
-}
-
-type Props = BackgroundDispatchProps & BackgroundStateProps;
-
-class Background extends Component<Props> {
-  canvas: React.RefObject<HTMLCanvasElement>;
-  space: FlyingThroughSpace | null;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.canvas = React.createRef();
-    this.space = null;
-  }
-
-  componentDidMount = () => {
-    if (this.canvas.current) {
-      this.space = new FlyingThroughSpace(this.canvas.current);
-      if (this.props.show) {
-        this.space.start();
-      }
-    }
-  };
-
-  render() {
-    if (this.space) {
-      if (this.props.show) {
-        this.space.start();
-      } else {
-        this.space.stop();
-      }
-    }
-
-    return (
-      <div className={style.background}>
-        <canvas className={style.canvas} ref={this.canvas} />
-      </div>
-    );
-  }
-}
-
-interface State {
-  optionsApp: OptionsAppInitialState;
-}
-
-const mapStateToProps = (state: State): BackgroundStateProps => {
-  return {
-    show: state.optionsApp.backgroundStarSpaceAnimation,
-  };
 };
-
-const mapDispatchToProps = (): BackgroundDispatchProps => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Background);
-*/

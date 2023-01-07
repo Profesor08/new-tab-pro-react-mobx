@@ -1,5 +1,3 @@
-import { RemovedBookmarks } from "./RemovedBookmarks";
-
 export class Sort {
   public static ORDER_BY_DATE: SortType = "ORDER_BY_DATE";
   public static ORDER_BY_NAME: SortType = "ORDER_BY_NAME";
@@ -20,7 +18,7 @@ export const bookmarksFilter = (
   sortDirection: SortDirection,
 ): BookmarkTreeNode[] => {
   return bookmarks
-    .filter(bookmark => {
+    .filter((bookmark) => {
       const titleMatch =
         bookmark.title.toLowerCase().search(searchQuery.toLowerCase()) !== -1;
       const urlMatch = bookmark.url
@@ -74,51 +72,4 @@ export const bookmarksFilter = (
 
       return 0;
     });
-};
-
-export const saveToStorage = (
-  key: string,
-  value: object | any[],
-): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    try {
-      if (isStorageAvailable()) {
-        const data: { [key: string]: string } = {};
-        data[key] = JSON.stringify(value);
-        chrome.storage.sync.set(data);
-      } else {
-        localStorage.setItem(key, JSON.stringify(value));
-      }
-
-      resolve(true);
-    } catch {
-      reject(false);
-    }
-  });
-};
-
-export const loadFromStorage = <T>(key: string, initial: T): Promise<T> => {
-  return new Promise(resolve => {
-    try {
-      if (isStorageAvailable()) {
-        chrome.storage.sync.get([key], result => {
-          try {
-            resolve(JSON.parse(result[key]));
-          } catch {
-            resolve(initial);
-          }
-        });
-      } else {
-        const json = localStorage.getItem(key);
-
-        if (json) {
-          resolve(JSON.parse(json));
-        } else {
-          resolve(initial);
-        }
-      }
-    } catch {
-      resolve(initial);
-    }
-  });
 };

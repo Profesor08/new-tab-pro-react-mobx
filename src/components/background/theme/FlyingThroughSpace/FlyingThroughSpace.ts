@@ -1,8 +1,7 @@
 import * as THREE from "three";
-const OrbitControls = require("three-orbit-controls")(THREE);
+import { fragmentShader } from "./shaders/fragmentShader";
+import { vertexShader } from "./shaders/vertexShader";
 import starSpectralColors from "./starSpectralColors";
-import fragmentShader from "!raw-loader!./shaders/fragmentShader.glsl";
-import vertexShader from "!raw-loader!./shaders/vertexShader.glsl";
 
 function rand(min: number, max: number): number {
   return Math.random() * (max - min) + min;
@@ -98,20 +97,20 @@ export class FlyingThroughSpace {
       },
     };
 
-    let shaderMaterial = new THREE.ShaderMaterial({
+    const shaderMaterial = new THREE.ShaderMaterial({
       uniforms: this._uniforms,
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
       blending: THREE.AdditiveBlending,
       depthTest: false,
       transparent: true,
-      vertexColors: THREE.VertexColors,
+      vertexColors: true,
     });
 
-    let geometry = new THREE.BufferGeometry();
-    let positions: number[] = [];
-    let colors: number[] = [];
-    let sizes: number[] = [];
+    const geometry = new THREE.BufferGeometry();
+    const positions: number[] = [];
+    const colors: number[] = [];
+    const sizes: number[] = [];
 
     for (let i = 0; i < this._particles; i++) {
       positions.push(rand(-1, 1));
@@ -119,26 +118,23 @@ export class FlyingThroughSpace {
       positions.push(rand(this._zMin, this._zMax));
       sizes.push(32);
 
-      let spectralColor = starSpectralColors[i % 512];
+      const spectralColor = starSpectralColors[i % 512];
 
       colors.push(spectralColor[0]);
       colors.push(spectralColor[1]);
       colors.push(spectralColor[2]);
     }
 
-    geometry.addAttribute(
+    geometry.setAttribute(
       "position",
       new THREE.Float32BufferAttribute(positions, 3),
     );
 
-    geometry.addAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
-    geometry.addAttribute(
-      "size",
-      new THREE.Float32BufferAttribute(sizes, 1).setDynamic(true),
-    );
+    geometry.setAttribute("size", new THREE.Float32BufferAttribute(sizes, 1));
 
-    let particleSystem = new THREE.Points(geometry, shaderMaterial);
+    const particleSystem = new THREE.Points(geometry, shaderMaterial);
 
     this._scene.add(particleSystem);
 

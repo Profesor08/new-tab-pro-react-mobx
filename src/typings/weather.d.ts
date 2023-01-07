@@ -1,8 +1,8 @@
 declare interface IGeoLocation {
   latitude: number;
   longitude: number;
-  city: string;
-  country: string;
+  city?: string;
+  country?: string;
 }
 
 declare interface ICoordinates {
@@ -101,4 +101,116 @@ declare interface IForecastData {
   cnt: number;
   list: IForecast[];
   city: IForecastCity;
+}
+
+declare interface ILocation {
+  name: string;
+  local_names: Record<string, string>;
+  lat: number;
+  lon: number;
+  country: string;
+}
+
+namespace YandexGeoCoder {
+  export interface ApiResponse {
+    response: {
+      GeoObjectCollection: YandexGeoCoder.GeoObjectCollection;
+    };
+  }
+
+  export interface GeoObjectCollection {
+    metaDataProperty: {
+      GeocoderResponseMetaData: GeocoderResponseMetaData;
+    };
+    featureMember: {
+      GeoObject: GeoObject;
+    }[];
+  }
+
+  export interface GeocoderResponseMetaData {
+    Point: Point;
+    request: string;
+    results: string;
+    found: string;
+  }
+
+  export type Position = `${number} ${number}`;
+
+  export interface Point {
+    pos: Position;
+  }
+
+  export interface GeoObject {
+    metaDataProperty: {
+      GeocoderMetaData: GeocoderMetaData;
+    };
+    name: string;
+    description?: string;
+    boundedBy: {
+      Envelope: Envelope;
+    };
+    Point: Point;
+  }
+
+  export interface Envelope {
+    lowerCorner: Position;
+    upperCorner: Position;
+  }
+
+  export interface GeocoderMetaData {
+    precision: Precision;
+    text: string;
+    kind: Kind;
+    Address: Address;
+    AddressDetails: AddressDetails;
+  }
+
+  export interface Address {
+    country_code?: string;
+    formatted: string;
+    Components: { kind: Kind; name: string }[];
+  }
+
+  export type Precision = "street" | "other";
+
+  export type Kind =
+    | "house"
+    | "street"
+    | "metro"
+    | "district"
+    | "locality"
+    | "country"
+    | "area"
+    | "other";
+
+  export interface AddressDetails {
+    Country?: Country;
+    Address?: string;
+  }
+
+  export interface Country {
+    AddressLine: string;
+    CountryNameCode: string;
+    CountryName: string;
+    AdministrativeArea?: AdministrativeArea;
+  }
+
+  export interface AdministrativeArea {
+    AdministrativeAreaName: string;
+    Locality?: Locality;
+  }
+
+  export interface Locality {
+    LocalityName: string;
+    Thoroughfare?: Thoroughfare;
+    DependentLocality?: DependentLocality;
+  }
+
+  export interface Thoroughfare {
+    ThoroughfareName: string;
+  }
+
+  export interface DependentLocality {
+    DependentLocalityName: string;
+  }
 }

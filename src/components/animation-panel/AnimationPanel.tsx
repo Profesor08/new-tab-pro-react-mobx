@@ -13,7 +13,7 @@ function map(
   stop2: number,
   withinBounds?: boolean,
 ): number {
-  let newValue =
+  const newValue =
     ((value - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
   if (!withinBounds) {
     return newValue;
@@ -27,13 +27,13 @@ function map(
 
 let initialized = false;
 
-const initSitesPanelAnimation = (
+const useSitesPanelAnimation = (
   ref: React.MutableRefObject<null | HTMLElement>,
 ) => {
   useEffect(() => {
     const container = ref.current;
 
-    if (container && initialized === false) {
+    if (container !== null && initialized === false) {
       initialized = false;
 
       let activated = false;
@@ -50,7 +50,7 @@ const initSitesPanelAnimation = (
       let lastTime = Date.now();
       const speed = 3.0;
 
-      container.addEventListener("mouseenter", e => {
+      container.addEventListener("mouseenter", (e) => {
         pos.mx = container.offsetWidth / 2;
         pos.my = container.offsetHeight / 2;
         pos.x = pos.mx;
@@ -62,13 +62,13 @@ const initSitesPanelAnimation = (
         }
       });
 
-      container.addEventListener("mousemove", e => {
+      container.addEventListener("mousemove", (e) => {
         const rect = container.getBoundingClientRect();
         pos.mx = e.clientX - rect.left;
         pos.my = e.clientY - rect.top;
       });
 
-      container.addEventListener("mouseleave", e => {
+      container.addEventListener("mouseleave", (e) => {
         pos.mx = container.offsetWidth / 2;
         pos.my = container.offsetHeight / 2;
       });
@@ -89,8 +89,8 @@ const initSitesPanelAnimation = (
         pos.x += Number(((pos.mx - pos.x) * ease_t).toFixed(2));
         pos.y += Number(((pos.my - pos.y) * ease_t).toFixed(2));
 
-        let halfW = container.offsetWidth / 2;
-        let halfH = container.offsetHeight / 2;
+        const halfW = container.offsetWidth / 2;
+        const halfH = container.offsetHeight / 2;
 
         let rotateY = parseFloat(
           map(Math.abs(pos.x - halfW), 0, halfW, 0, 5).toFixed(2),
@@ -111,7 +111,7 @@ const initSitesPanelAnimation = (
         container.style.transform = `perspective(900px) rotateX(${-rotateX}deg) rotateY(${-rotateY}deg) translate3d(0, 0, 0)`;
       };
     }
-  });
+  }, [ref]);
 };
 
 const AnimationPanelElement = styled.div`
@@ -121,14 +121,14 @@ const AnimationPanelElement = styled.div`
   transform: translateZ(0);
 `;
 
-export const AnimationPanel = ({ children, ...rest }: any) => {
+export const AnimationPanel = styled(({ children, ...rest }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  initSitesPanelAnimation(ref);
+  useSitesPanelAnimation(ref);
 
   return (
     <AnimationPanelElement ref={ref} {...rest}>
       {children}
     </AnimationPanelElement>
   );
-};
+})``;

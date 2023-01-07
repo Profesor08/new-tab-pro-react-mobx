@@ -1,13 +1,16 @@
 import React from "react";
 import styled from "styled-components/macro";
+import { favicon } from "../../lib/favicon";
 import { IconButton } from "../buttons/IconButton";
+import { Tooltip } from "../tooltip/Tooltip";
+import { BookmarkContextMenu } from "./BookmarkContextMenu";
 
 function dateFormat(timestamp: number): string {
   return new Date(timestamp).toLocaleString().substr(0, 10);
 }
 
 function timeFormat(timestamp: number): string {
-  let time = new Date(timestamp).toLocaleString().substr(12);
+  const time = new Date(timestamp).toLocaleString().substr(12);
 
   if (time.length < 8) {
     return "0" + time;
@@ -92,25 +95,34 @@ const BookmarkItemElement = styled.div`
 
 interface IBookmarkItemProps {
   bookmark: BookmarkTreeNode;
-  onMenu?: (target: EventTarget, bookmark: BookmarkTreeNode) => void;
 }
 
-export const BookmarkItem = ({ bookmark, onMenu }: IBookmarkItemProps) => (
+export const BookmarkItem = ({ bookmark }: IBookmarkItemProps) => (
   <BookmarkItemElement>
-    <BookmarkImage src={`chrome://favicon/size/24@1x/` + bookmark.url} />
+    <BookmarkImage
+      // src={`https://www.google.com/s2/favicons?domain=` + bookmark.url}
+      src={favicon(bookmark.url ?? "")}
+      width={24}
+      height={24}
+      loading="lazy"
+    />
     <BookmarkTitle href={bookmark.url}>{bookmark.title}</BookmarkTitle>
     <BookmarkUrl>{bookmark.url}</BookmarkUrl>
     <BookmarkTime>
       {dateFormat(bookmark.dateAdded)}, {timeFormat(bookmark.dateAdded)}
     </BookmarkTime>
-    <BookmarkMenuButton
-      onClick={(e) => {
-        if (onMenu) {
-          onMenu(e.target, bookmark);
-        }
+    <Tooltip
+      behavior="click"
+      toggle={({ reference, referenceProps, ...props }) => {
+        return (
+          <BookmarkMenuButton ref={reference} {...referenceProps} {...props}>
+            ⋮
+          </BookmarkMenuButton>
+        );
       }}
-    >
-      ⋮
-    </BookmarkMenuButton>
+      content={({ setOpen }) => (
+        <BookmarkContextMenu bookmark={bookmark} setOpen={setOpen} />
+      )}
+    />
   </BookmarkItemElement>
 );

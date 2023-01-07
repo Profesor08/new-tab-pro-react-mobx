@@ -1,111 +1,28 @@
-import { useEffect, useState } from "react";
-import { cache } from "../../lib/cache";
 import icons from "./icons";
-import options from "../../store/options";
 
 const openWeatherMapApiKey = `6a3811c0c201a60032a60c243e832cf1`;
+const yandexGeoCoderApiKey = `a1dcf3c2-9a95-4ca5-ac07-7154ee32ed32`;
 
-const makeRequest = async (
-  urlString: string,
-  props: { [key: string]: string | number } = {},
-) => {
-  const url = new URL(urlString);
+const api = async <T>(
+  input: string,
+  props: Record<string, string | number> = {},
+): Promise<T> => {
+  const url = new URL(input);
 
-  for (const prop in props) {
-    url.searchParams.append(prop, props[prop].toString());
-  }
-
-  return fetch(url.href);
-};
-
-export const getGeoLocation = async (): Promise<IGeoLocation> => {
-  const response = await makeRequest("https://api.sypexgeo.net/json/");
-  const { city, country } = await response.json();
-
-  const language = navigator.language.substr(0, 2);
-
-  return {
-    latitude: city.lat,
-    longitude: city.lon,
-    city: city["name_" + language] || city["name_en"],
-    country: country["name_" + language] || country["name_en"],
-  };
-};
-
-export const getWeather = async () => {
-  return cache("weatherData", async () => {
-    const language = navigator.language.substr(0, 2);
-
-    const location: IGeoLocation = await getGeoLocation();
-
-    const props = {
-      lat: location.latitude,
-      lon: location.longitude,
-      num_of_days: 5,
-      format: "json",
-      units: "Metric",
-      appid: openWeatherMapApiKey,
-      lang: language,
-    };
-
-    const weather = await (
-      await makeRequest(
-        "https://api.openweathermap.org/data/2.5/weather",
-        props,
-      )
-    ).json();
-    const forecast = await (
-      await makeRequest(
-        "https://api.openweathermap.org/data/2.5/forecast",
-        props,
-      )
-    ).json();
-
-    return {
-      weather,
-      forecast,
-      location,
-    };
-  });
-};
-
-export const useWeather = (): [
-  IWeatherData | null,
-  IForecastData | null,
-  IGeoLocation | null,
-] => {
-  const [data, setData] = useState({
-    loaded: false,
-    weather: null,
-    forecast: null,
-    location: null,
+  Object.entries(props).forEach(([name, value]) => {
+    url.searchParams.set(name, value.toString());
   });
 
-  useEffect(() => {
-    const load = async () => {
-      if (options.showWeatherWidget) {
-        const { weather, forecast, location } = await getWeather();
+  const request = await fetch(url, {
+    method: "GET",
+  });
 
-        setData({
-          loaded: true,
-          weather,
-          forecast,
-          location,
-        });
-      }
-    };
-
-    if (data.loaded === false) {
-      load();
-    }
-  }, [data.loaded, options.showWeatherWidget]);
-
-  return [data.weather, data.forecast, data.location];
+  return await request.json();
 };
 
 export const getWeatherIcon = (icon: string) => {
   try {
-    icon = icon.substr(0, 2);
+    icon = icon.substring(0, 2);
   } catch (err) {
     return icons.sunny;
   }
@@ -132,4 +49,93 @@ export const getWeatherIcon = (icon: string) => {
     default:
       return icons.partlyCloudy;
   }
+};
+
+export const getCoords = async (): Promise<GeolocationCoordinates> => {
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      resolve(coords);
+    });
+  });
+};
+
+export const getLanguage = () =>
+  navigator.language.substring(0, 2).toLowerCase();
+
+export const getGeoLocation = async (): Promise<IGeoLocation> => {
+  const coords = await getCoords();
+
+  const {
+    response: { GeoObjectCollection },
+  } = await api<YandexGeoCoder.ApiResponse>(
+    "https://geocode-maps.yandex.ru/1.x",
+    {
+      apikey: yandexGeoCoderApiKey,
+      format: "json",
+      geocode: `${coords.longitude},${coords.latitude}`,
+    },
+  );
+
+  const location = GeoObjectCollection.featureMember[0]?.GeoObject as
+    | YandexGeoCoder.GeoObject
+    | undefined;
+
+  const [longitude, latitude] = location?.Point.pos.split(/\s+/) ?? [
+    coords.longitude,
+    coords.latitude,
+  ];
+
+  const country =
+    location?.metaDataProperty.GeocoderMetaData.Address.Components.find(
+      (component) => component.kind === "country",
+    );
+
+  const locality =
+    location?.metaDataProperty.GeocoderMetaData.Address.Components.find(
+      (component) => component.kind === "locality",
+    );
+
+  const area =
+    location?.metaDataProperty.GeocoderMetaData.Address.Components.find(
+      (component) => component.kind === "area",
+    );
+
+  return {
+    latitude: parseFloat(latitude.toString()),
+    longitude: parseFloat(longitude.toString()),
+    city: locality?.name ?? area?.name,
+    country: country?.name,
+  };
+};
+
+export const getWeather = async (
+  location: IGeoLocation,
+): Promise<IWeatherData> => {
+  const language = getLanguage();
+
+  return await api("https://api.openweathermap.org/data/2.5/weather", {
+    lat: location.latitude.toString(),
+    lon: location.longitude.toString(),
+    num_of_days: "5",
+    format: "json",
+    units: "Metric",
+    appid: openWeatherMapApiKey,
+    lang: language,
+  });
+};
+
+export const getForecast = async (
+  location: IGeoLocation,
+): Promise<IForecastData> => {
+  const language = getLanguage();
+
+  return await api("https://api.openweathermap.org/data/2.5/forecast", {
+    lat: location.latitude.toString(),
+    lon: location.longitude.toString(),
+    num_of_days: "5",
+    format: "json",
+    units: "Metric",
+    appid: openWeatherMapApiKey,
+    lang: language,
+  });
 };

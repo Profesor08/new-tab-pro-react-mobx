@@ -1,52 +1,12 @@
-import React, { useRef, useEffect, useState } from "react";
-import { observer } from "mobx-react";
-import options from "../../store/options";
-import styled, { css } from "styled-components/macro";
+import React from "react";
+import { useOptions } from "../../store/options";
+import styled from "styled-components/macro";
 import { theme } from "../../theme/theme-default";
-
-interface IPanelProps {
-  active?: boolean;
-}
-
-const Panel = styled.div<IPanelProps>`
-  position: fixed;
-  top: 10px;
-  left: 0;
-  transform: translate(-100%, 0);
-  opacity: 0;
-  background-color: ${theme.optionsPanelBackground};
-  border: 2px solid ${theme.optionsPanelBorderColor};
-  color: ${theme.optionsPanelColor};
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  transition: ease opacity 0.3s, ease transform 0.3s;
-  outline: none;
-
-  ${(p) =>
-    p.active
-      ? css`
-          transform: translate(50px, 0);
-          opacity: 1;
-        `
-      : null}
-`;
+import { ActionButton, ActionMenu } from "../action-menu/ActionMenu";
 
 const ButtonText = styled.div`
   transition: ease padding ${theme.animationSpeed};
   padding: 0 30px 0 0;
-`;
-
-const Button = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2px 5px;
-  border-top: 1px solid #434343;
-  font-size: 0.8rem;
-  background-color: transparent;
-  transition: ease background-color ${theme.animationSpeed};
-  white-space: nowrap;
 `;
 
 interface IIconProps {
@@ -65,6 +25,23 @@ const Icon = styled.span<IIconProps>`
   }
 `;
 
+const OptionsPanelMenu = styled(ActionMenu)`
+  background-color: ${theme.menuBarBackgroundColor};
+  border: 2px solid ${theme.menuBarHoverBorderColor};
+  box-shadow: 0 2px 6px ${theme.menuBarBorderColor};
+`;
+
+const OptionsPanelButton = styled(ActionButton)`
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  color: ${theme.menuBarButtonColor};
+
+  &:hover {
+    background-color: ${theme.menuBarHoverBackgroundColor};
+    cursor: pointer;
+  }
+`;
+
 interface IOptionsButtonProps {
   active?: boolean;
   children?: React.ReactChild;
@@ -77,76 +54,42 @@ const OptionsButton = ({
   onClick,
 }: IOptionsButtonProps) => {
   return (
-    <Button onClick={onClick}>
+    <OptionsPanelButton onClick={onClick}>
       <ButtonText>{children}</ButtonText>
       <Icon active={active} />
-    </Button>
+    </OptionsPanelButton>
   );
 };
 
-export const OptionsPanel = observer(() => {
-  const ref: React.MutableRefObject<null | HTMLDivElement> = useRef(null);
-  const [active, setActive] = useState(options.optionsPanelShow);
-
-  useEffect(() => {
-    setActive(options.optionsPanelShow);
-  }, [options.optionsPanelShow]);
-
-  useEffect(() => {
-    if (active && ref.current !== null) {
-      ref.current.focus();
-    }
-  }, [ref.current, active]);
+export const OptionsPanel = () => {
+  const weather = useOptions((state) => state.weather);
+  const toggleWeather = useOptions((state) => state.toggleWeather);
+  const currency = useOptions((state) => state.currency);
+  const toggleCurrency = useOptions((state) => state.toggleCurrency);
+  const sites = useOptions((state) => state.sites);
+  const toggleSites = useOptions((state) => state.toggleSites);
+  const starSpace = useOptions((state) => state.starSpace);
+  const toggleStarSpace = useOptions((state) => state.toggleStarSpace);
+  const controls = useOptions((state) => state.controls);
+  const toggleControls = useOptions((state) => state.toggleControls);
 
   return (
-    <Panel
-      ref={ref}
-      active={active}
-      tabIndex={-1}
-      onBlur={() => {
-        options.optionsPanelShow = false;
-      }}
-    >
-      <OptionsButton
-        active={options.showWeatherWidget}
-        onClick={() => {
-          options.showWeatherWidget = !options.showWeatherWidget;
-        }}
-      >
+    <OptionsPanelMenu>
+      <OptionsButton active={weather} onClick={toggleWeather}>
         Show weather
       </OptionsButton>
-      <OptionsButton
-        active={options.showCurrencyWidget}
-        onClick={() => {
-          options.showCurrencyWidget = !options.showCurrencyWidget;
-        }}
-      >
+      <OptionsButton active={currency} onClick={toggleCurrency}>
         Show currency
       </OptionsButton>
-      <OptionsButton
-        active={options.showWebSites}
-        onClick={() => {
-          options.showWebSites = !options.showWebSites;
-        }}
-      >
+      <OptionsButton active={sites} onClick={toggleSites}>
         Show sites
       </OptionsButton>
-      <OptionsButton
-        active={options.backgroundStarSpaceAnimation}
-        onClick={() => {
-          options.backgroundStarSpaceAnimation = !options.backgroundStarSpaceAnimation;
-        }}
-      >
+      <OptionsButton active={starSpace} onClick={toggleStarSpace}>
         Background Star Space
       </OptionsButton>
-      <OptionsButton
-        active={options.additionalOptions}
-        onClick={() => {
-          options.additionalOptions = !options.additionalOptions;
-        }}
-      >
+      <OptionsButton active={controls} onClick={toggleControls}>
         Additional Options
       </OptionsButton>
-    </Panel>
+    </OptionsPanelMenu>
   );
-});
+};
