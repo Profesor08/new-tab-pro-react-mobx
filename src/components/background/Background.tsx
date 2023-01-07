@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components/macro";
-import options from "../../store/options";
 import { FlyingThroughSpace } from "./theme/FlyingThroughSpace/FlyingThroughSpace";
-import { observer } from "mobx-react";
+import { useOptions } from "./../../store/options";
 
 const BackgroundCanvas = styled.canvas`
   position: fixed;
@@ -13,17 +12,10 @@ const BackgroundCanvas = styled.canvas`
   z-index: -1;
 `;
 
-export const Background = observer(() => {
+export const Background = () => {
   const ref = useRef<HTMLCanvasElement | null>(null);
   const [space, setSpace] = useState<FlyingThroughSpace | null>(null);
-
-  if (space !== null) {
-    if (options.backgroundStarSpaceAnimation) {
-      space.start();
-    } else {
-      space.stop();
-    }
-  }
+  const starSpace = useOptions((state) => state.starSpace);
 
   useEffect(() => {
     if (space === null && ref.current !== null) {
@@ -31,5 +23,13 @@ export const Background = observer(() => {
     }
   }, [space]);
 
+  useEffect(() => {
+    if (starSpace === true) {
+      space?.start();
+    } else {
+      space?.stop();
+    }
+  }, [space, starSpace]);
+
   return <BackgroundCanvas ref={ref} />;
-});
+};

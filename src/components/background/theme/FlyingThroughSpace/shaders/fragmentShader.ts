@@ -1,4 +1,6 @@
-export const fragmentShader = `
+import { frag } from "../../../../../lib/glsl";
+
+export const fragmentShader = frag`
   uniform sampler2D texture1;
   uniform sampler2D texture2;
   uniform sampler2D texture3;
@@ -17,16 +19,15 @@ export const fragmentShader = `
   // vec4 getNebulaColor(vec3 globalPosition, vec3 rayDirection) {
   //     vec3 color = vec3(0.0);
   //     float spaceLeft = 1.0;
-      
+
   //     const float layerDistance = 10.0;
   //     float rayLayerStep = rayDirection.z / layerDistance;
-      
+
   //     const int steps = 4;
   //     for (int i = 0; i <= steps; i++) {
   //     	vec3 noiseeval = globalPosition + rayDirection * ((1.0 - fract(globalPosition.z / layerDistance) + float(i)) * layerDistance / rayDirection.z);
   //     	noiseeval.xy += noiseeval.z;
-          
-          
+
   //         float value = 0.06 * texture(iChannel0, fract(noiseeval.xy / 60.0)).r;
 
   //         if (i == 0) {
@@ -34,9 +35,9 @@ export const fragmentShader = `
   //         } else if (i == steps) {
   //             value *= fract(globalPosition.z / layerDistance);
   //         }
-          
+
   //         float hue = mod(noiseeval.z / layerDistance / 34.444, 1.0);
-          
+
   //         color += spaceLeft * hsv2rgb(vec3(hue, 1.0, value));
   //         spaceLeft = max(0.0, spaceLeft - value * 2.0);
   //     }

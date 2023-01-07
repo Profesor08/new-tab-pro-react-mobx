@@ -1,4 +1,6 @@
-export const vertexShader = `
+import { vert } from "../../../../../lib/glsl";
+
+export const vertexShader = vert`
   attribute float size;
   varying vec3 vColor;
   uniform float time;
